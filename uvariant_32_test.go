@@ -3,18 +3,39 @@
 package main
 
 import (
-	"math/rand"
+	"reflect"
 	"testing"
 	"unsafe"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestFloat64Store(t*testing.T) {
-	//v := Variant{}
+func TestUVariantFieldAliasing(t*testing.T) {
+	v := Variant{}
 
-	// Ensure capOrVal and last32bit form a continuous 64 bit area where float64 can be stored.
-	//assert.EqualValues(t, 4, unsafe.Sizeof(v.capOrVal))
-	//assert.EqualValues(t, 4, unsafe.Sizeof(v.last32bit))
-	//assert.EqualValues(t, unsafe.Offsetof(v.capOrVal)+unsafe.Sizeof(v.capOrVal), unsafe.Offsetof(v.last32bit))
+	// Ensure fields correctly alias corresponding fields of StringHeader
+
+	// Data/ptr field.
+	assert.EqualValues(t, unsafe.Offsetof(reflect.StringHeader{}.Data), unsafe.Offsetof(v.ptr))
+	assert.EqualValues(t, unsafe.Sizeof(reflect.StringHeader{}.Data), unsafe.Sizeof(v.ptr))
+
+	// Len field.
+	assert.EqualValues(t, unsafe.Offsetof(reflect.StringHeader{}.Len), unsafe.Offsetof(v.lenOrType))
+	assert.EqualValues(t, unsafe.Sizeof(reflect.StringHeader{}.Len), unsafe.Sizeof(v.lenOrType))
+
+	// Ensure fields correctly alias corresponding fields of SliceHeader
+
+	// Data/ptr field.
+	assert.EqualValues(t, unsafe.Offsetof(reflect.SliceHeader{}.Data), unsafe.Offsetof(v.ptr))
+	assert.EqualValues(t, unsafe.Sizeof(reflect.SliceHeader{}.Data), unsafe.Sizeof(v.ptr))
+
+	// Len field.
+	assert.EqualValues(t, unsafe.Offsetof(reflect.SliceHeader{}.Len), unsafe.Offsetof(v.lenOrType))
+	assert.EqualValues(t, unsafe.Sizeof(reflect.SliceHeader{}.Len), unsafe.Sizeof(v.lenOrType))
+
+	// Cap field.
+	assert.EqualValues(t, unsafe.Offsetof(reflect.SliceHeader{}.Cap), unsafe.Offsetof(v.capOrVal))
+	assert.True(t, unsafe.Sizeof(reflect.SliceHeader{}.Cap) <= unsafe.Sizeof(v.capOrVal))
 }
 
 func createUVariantF64Float64() VariantF64 {
@@ -24,7 +45,7 @@ func createUVariantF64Float64() VariantF64 {
 	return VariantF64{}
 }
 
-//func BenchmarkUVariantF64Float64Get(b *testing.B) {
+//func BenchmarkUnionVariantF64Float64Get(b *testing.B) {
 //	for i:=0; i<b.N; i++ {
 //		v := createUVariantF64Float64()
 //		vf := v.Float64()
@@ -33,38 +54,3 @@ func createUVariantF64Float64() VariantF64 {
 //		}
 //	}
 //}
-
-
-type VS struct {
-	ptr unsafe.Pointer
-	lenOrType int
-	//capOrVal int
-	//last32bit int // used for second half of float64.
-	capOrVal uint64
-}
-
-func fff() Variant {
-	return Float64Variant(1.5)
-	for i:=0; i<10; i++ {
-		return Float64Variant(1.5)
-	}
-	return Variant{}
-}
-
-var f3val float64
-
-func f3() float64 {
-	return f3val
-}
-
-func BenchmarkFloat64Bits(b *testing.B) {
-	f3val = rand.Float64()
-	for i:=0; i<b.N; i++ {
-		v:=fff()
-		f1 := v.Float64()
-		//f := f3()
-		if f1!=f1 {
-			panic("bad bits")
-		}
-	}
-}

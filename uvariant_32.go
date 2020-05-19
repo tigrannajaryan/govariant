@@ -10,10 +10,7 @@ import "reflect"
 type Variant struct {
 	ptr unsafe.Pointer
 	lenOrType int
-	//last32bit int // used for second half of float64.
-	//capOrVal [8]byte
-	capOrVal int64
-	//capOrVal int
+	capOrVal int64 // cap of bytes, int or float value.
 }
 
 func (v* Variant) Type() VariantType {
@@ -21,7 +18,7 @@ func (v* Variant) Type() VariantType {
 		return VariantType(v.lenOrType)
 	}
 
-	if v.capOrVal == -1 {
+	if *(*int)(unsafe.Pointer(&v.capOrVal)) == -1 {
 		return VariantTypeString
 	}
 
@@ -30,20 +27,21 @@ func (v* Variant) Type() VariantType {
 
 func IntVariant(v int) (r Variant) {
 	r.lenOrType = VariantTypeInt
-	*(*int)(unsafe.Pointer(uintptr(unsafe.Pointer(&r.capOrVal)))) = v
+	*(*int)(unsafe.Pointer(&r.capOrVal)) = v
 	return r
 }
 
 func Float64Variant(v float64) (r Variant) {
 	r.lenOrType = VariantTypeFloat64
-	*(*float64)(unsafe.Pointer(uintptr(unsafe.Pointer(&r.capOrVal)))) = v
-	//r.capOrVal = v
+	*(*float64)(unsafe.Pointer(&r.capOrVal)) = v
 	return r
 }
 
 func StringVariant(v string) Variant {
 	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenOrType:hdr.Len, capOrVal:-1}
+	vr := Variant{ptr: unsafe.Pointer(hdr.Data), lenOrType:hdr.Len}
+	*(*int)(unsafe.Pointer(&vr.capOrVal)) = -1
+	return vr
 }
 
 func BytesVariant(v []byte) Variant {
@@ -59,7 +57,6 @@ func (v* Variant) Int() int {
 
 func (v* Variant) Float64() float64 {
 	return *(*float64)(unsafe.Pointer(&v.capOrVal))
-	//return v.capOrVal
 }
 
 func (v* Variant) String() (s string) {

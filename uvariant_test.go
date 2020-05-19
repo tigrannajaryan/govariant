@@ -66,7 +66,7 @@ func createUVariantBytes() Variant {
 	return BytesVariant(BytesMagicVal)
 }
 
-func BenchmarkUVariantIntGet(b *testing.B) {
+func BenchmarkUnionVariantIntGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createUVariantInt()
 		vi := v.Int()
@@ -76,7 +76,7 @@ func BenchmarkUVariantIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUVariantFloat64Get(b *testing.B) {
+func BenchmarkUnionVariantFloat64Get(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createUVariantFloat64()
 		vf := v.Float64()
@@ -86,7 +86,7 @@ func BenchmarkUVariantFloat64Get(b *testing.B) {
 	}
 }
 
-func BenchmarkUVariantStringTypeAndGet(b *testing.B) {
+func BenchmarkUnionVariantStringTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createUVariantString()
 		if v.Type()==VariantTypeString {
@@ -99,7 +99,7 @@ func BenchmarkUVariantStringTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUVariantBytesTypeAndGet(b *testing.B) {
+func BenchmarkUnionVariantBytesTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createUVariantBytes()
 		if v.Type()== VariantTypeBytes {
@@ -112,7 +112,7 @@ func BenchmarkUVariantBytesTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUVariantIntTypeAndGet(b *testing.B) {
+func BenchmarkUnionVariantIntTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createUVariantInt()
 		if v.Type()==VariantTypeInt {
@@ -142,7 +142,7 @@ func createUVariantStringSlice(n int) []Variant {
 	return v
 }
 
-func BenchmarkUVariantSliceIntGet(b *testing.B) {
+func BenchmarkUnionVariantSliceIntGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		vv := createUVariantIntSlice(VariantSliceSize)
 		for _,v := range vv {
@@ -153,7 +153,7 @@ func BenchmarkUVariantSliceIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUVariantSliceIntTypeAndGet(b *testing.B) {
+func BenchmarkUnionVariantSliceIntTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		vv := createUVariantIntSlice(VariantSliceSize)
 		for _,v := range vv {
@@ -168,7 +168,7 @@ func BenchmarkUVariantSliceIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUVariantSliceStringTypeAndGet(b *testing.B) {
+func BenchmarkUnionVariantSliceStringTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		vv := createUVariantStringSlice(VariantSliceSize)
 		for _,v := range vv {

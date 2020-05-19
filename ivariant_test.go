@@ -58,7 +58,7 @@ func createIVariantStringSlice(n int) []IVariant {
 	return v
 }
 
-func BenchmarkIVariantIntGet(b *testing.B) {
+func BenchmarkInterfaceVariantIntGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createIVariantInt()
 		vi := v.Int()
@@ -68,7 +68,7 @@ func BenchmarkIVariantIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantFloat64Get(b *testing.B) {
+func BenchmarkInterfaceVariantFloat64Get(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createIVariantFloat64()
 		vi := v.Float64()
@@ -78,7 +78,7 @@ func BenchmarkIVariantFloat64Get(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantIntTypeAndGet(b *testing.B) {
+func BenchmarkInterfaceVariantIntTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createIVariantInt()
 		switch val:=v.(type) {
@@ -93,7 +93,7 @@ func BenchmarkIVariantIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantStringTypeAndGet(b *testing.B) {
+func BenchmarkInterfaceVariantStringTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createIVariantString()
 		switch val:=v.(type) {
@@ -104,7 +104,7 @@ func BenchmarkIVariantStringTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantBytesTypeAndGet(b *testing.B) {
+func BenchmarkInterfaceVariantBytesTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		v := createIVariantBytes()
 		switch val:=v.(type) {
@@ -115,7 +115,7 @@ func BenchmarkIVariantBytesTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantSliceIntGet(b *testing.B) {
+func BenchmarkInterfaceVariantSliceIntGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		vv := createIVariantIntSlice(VariantSliceSize)
 		for _,v := range vv {
@@ -124,7 +124,7 @@ func BenchmarkIVariantSliceIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantSliceIntTypeAndGet(b *testing.B) {
+func BenchmarkInterfaceVariantSliceIntTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		vv := createIVariantIntSlice(VariantSliceSize)
 		for _,v := range vv {
@@ -137,7 +137,7 @@ func BenchmarkIVariantSliceIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkIVariantSliceStringTypeAndGet(b *testing.B) {
+func BenchmarkInterfaceVariantSliceStringTypeAndGet(b *testing.B) {
 	for i:=0; i<b.N; i++ {
 		vv := createIVariantStringSlice(VariantSliceSize)
 		for _,v := range vv {
