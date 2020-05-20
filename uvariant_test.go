@@ -11,8 +11,11 @@ import (
 func TestUVariant(t*testing.T) {
 	fmt.Printf("Variant size=%v\n", unsafe.Sizeof(Variant{}))
 
+	v := EmptyVariant()
+	assert.EqualValues(t, VariantTypeEmpty, v.Type())
+
 	b1 := []byte{1,2,3}
-	v := BytesVariant(b1)
+	v = BytesVariant(b1)
 	b2 := v.Bytes()
 	assert.EqualValues(t, b1, b2)
 	assert.EqualValues(t, VariantTypeBytes, v.Type())
@@ -34,8 +37,6 @@ func TestUVariant(t*testing.T) {
 	f2 := v.Float64()
 	assert.EqualValues(t, f1, f2)
 	assert.EqualValues(t, VariantTypeFloat64, v.Type())
-
-	//assert.EqualValues(t, 8, unsafe.Sizeof(int(123)))
 }
 
 func createUVariantInt() Variant {

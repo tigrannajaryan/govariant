@@ -2,10 +2,13 @@ package main
 
 type VariantType int
 const (
-	VariantTypeInt = iota
+	VariantTypeEmpty = iota
+	VariantTypeInt
 	VariantTypeFloat64
 	VariantTypeString
 	VariantTypeBytes
 )
 
-
+func EmptyVariant() Variant {
+	return Variant{}
+}

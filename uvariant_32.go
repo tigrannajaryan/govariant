@@ -61,14 +61,15 @@ func (v* Variant) Float64() float64 {
 
 func (v* Variant) String() (s string) {
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
-	src := (*reflect.StringHeader)(unsafe.Pointer(v))
-	*dest = *src
+	dest.Data = uintptr(v.ptr)
+	dest.Len = v.lenOrType
 	return s
 }
 
 func (v* Variant) Bytes() (b []byte) {
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-	src := (*reflect.SliceHeader)(unsafe.Pointer(v))
-	*dest = *src
+	dest.Data = uintptr(v.ptr)
+	dest.Len = v.lenOrType
+	dest.Cap = *(*int)(unsafe.Pointer(&v.capOrVal))
 	return b
 }
