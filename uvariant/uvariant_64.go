@@ -23,10 +23,22 @@ func NewFloat64(v float64) Variant {
 
 func NewBytes(v []byte) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+	if hdr.Len > MaxSliceLen {
+		panic("maximum len exceeded")
+	}
 	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeBytes, capOrVal: hdr.Cap}
 }
 
 func NewSlice(v []Variant) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeSlice, capOrVal: hdr.Cap}
+	if hdr.Len > MaxSliceLen {
+		panic("maximum len exceeded")
+	}
+	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeValueList, capOrVal: hdr.Cap}
+}
+
+func NewKVList(cap int) Variant {
+	v := make([]KeyValue, 0, cap)
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeKeyValueList, capOrVal: hdr.Cap}
 }

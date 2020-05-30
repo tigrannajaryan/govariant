@@ -14,16 +14,20 @@ const (
 	VariantTypeString
 	VariantTypeMap
 	VariantTypeBytes
-	VariantTypeSlice
+	VariantTypeValueList
+	VariantTypeKeyValueList
 )
 
 const TypeFieldMask = 0x07
 const LenFieldBitShiftCount = 3
+const MaxSliceLen = int((^uint(0))>>1) >> LenFieldBitShiftCount
 
 type KeyValue struct {
-	key   string
-	value Variant
+	Key   string
+	Value Variant
 }
+
+type KeyValueList []KeyValue
 
 func (v *Variant) Type() VariantType {
 	return VariantType(v.lenAndType & TypeFieldMask)
@@ -35,6 +39,9 @@ func NewEmpty() Variant {
 
 func NewString(v string) Variant {
 	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
+	if hdr.Len > MaxSliceLen {
+		panic("maximum len exceeded")
+	}
 	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeString}
 }
 
@@ -77,8 +84,8 @@ func (v *Variant) Bytes() (b []byte) {
 	return b
 }
 
-func (v *Variant) Slice() (s []Variant) {
-	if v.Type() != VariantTypeSlice {
+func (v *Variant) ValueList() (s []Variant) {
+	if v.Type() != VariantTypeValueList {
 		panic("Variant is not a slice")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
@@ -88,8 +95,8 @@ func (v *Variant) Slice() (s []Variant) {
 	return s
 }
 
-func (v *Variant) At(i int) Variant {
-	if v.Type() != VariantTypeSlice {
+func (v *Variant) ValueAt(i int) Variant {
+	if v.Type() != VariantTypeValueList {
 		panic("Variant is not a slice")
 	}
 	if v.ptr == nil {
@@ -103,4 +110,41 @@ func (v *Variant) At(i int) Variant {
 
 func (v *Variant) Len() int {
 	return v.lenAndType >> LenFieldBitShiftCount
+}
+
+func (v *Variant) Resize(len int) {
+	if len < 0 {
+		panic("negative len is not allowed")
+	}
+	if len > int(v.capOrVal) {
+		panic("cannot resize beyond capacity")
+	}
+	if len > MaxSliceLen {
+		panic("maximum len exceeded")
+	}
+	v.lenAndType = (v.lenAndType & TypeFieldMask) | (len << LenFieldBitShiftCount)
+}
+
+func (v *Variant) KeyValueList() (s []KeyValue) {
+	if v.Type() != VariantTypeKeyValueList {
+		panic("Variant is not a KeyValueList")
+	}
+	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
+	dest.Data = uintptr(v.ptr)
+	dest.Len = v.lenAndType >> LenFieldBitShiftCount
+	dest.Cap = int(v.capOrVal)
+	return s
+}
+
+func (v *Variant) KeyValueAt(i int) *KeyValue {
+	if v.Type() != VariantTypeKeyValueList {
+		panic("Variant is not a KeyValueList")
+	}
+	if v.ptr == nil {
+		panic("index of nil KeyValueList")
+	}
+	if i < 0 || i >= v.Len() {
+		panic("out of index")
+	}
+	return (*KeyValue)(unsafe.Pointer(uintptr(v.ptr) + uintptr(i)*unsafe.Sizeof(KeyValue{})))
 }
