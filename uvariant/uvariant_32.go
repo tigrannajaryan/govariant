@@ -13,17 +13,22 @@ type Variant struct {
 	capOrVal   int64 // cap of bytes, int or float value.
 }
 
-func IntVariant(v int) Variant {
+func NewInt(v int) Variant {
 	return Variant{lenAndType: VariantTypeInt, capOrVal: int64(v)}
 }
 
-func Float64Variant(v float64) (r Variant) {
+func NewFloat64(v float64) (r Variant) {
 	r.lenAndType = VariantTypeFloat64
 	*(*float64)(unsafe.Pointer(&r.capOrVal)) = v
 	return r
 }
 
-func BytesVariant(v []byte) Variant {
+func NewBytes(v []byte) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeBytes, capOrVal: int64(hdr.Cap)}
+}
+
+func NewSlice(v []Variant) Variant {
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeSlice, capOrVal: int64(hdr.Cap)}
 }
