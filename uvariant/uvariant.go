@@ -53,6 +53,9 @@ func (v *Variant) Float64() float64 {
 }
 
 func (v *Variant) String() (s string) {
+	if v.Type() != VariantTypeString {
+		panic("Variant is not a string")
+	}
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
 	dest.Len = v.lenAndType >> LenFieldBitShiftCount
@@ -64,6 +67,9 @@ func (v *Variant) Map() map[string]Variant {
 }
 
 func (v *Variant) Bytes() (b []byte) {
+	if v.Type() != VariantTypeBytes {
+		panic("Variant is not a bytes")
+	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	dest.Data = uintptr(v.ptr)
 	dest.Len = v.lenAndType >> LenFieldBitShiftCount
@@ -72,9 +78,29 @@ func (v *Variant) Bytes() (b []byte) {
 }
 
 func (v *Variant) Slice() (s []Variant) {
+	if v.Type() != VariantTypeSlice {
+		panic("Variant is not a slice")
+	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
 	dest.Len = v.lenAndType >> LenFieldBitShiftCount
 	dest.Cap = int(v.capOrVal)
 	return s
+}
+
+func (v *Variant) At(i int) Variant {
+	if v.Type() != VariantTypeSlice {
+		panic("Variant is not a slice")
+	}
+	if v.ptr == nil {
+		panic("index of nil slice")
+	}
+	if i < 0 || i >= v.Len() {
+		panic("out of index")
+	}
+	return *(*Variant)(unsafe.Pointer(uintptr(v.ptr) + uintptr(i)*unsafe.Sizeof(Variant{})))
+}
+
+func (v *Variant) Len() int {
+	return v.lenAndType >> LenFieldBitShiftCount
 }

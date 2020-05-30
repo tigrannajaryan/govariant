@@ -53,8 +53,10 @@ func TestUVariant(t *testing.T) {
 	assert.EqualValues(t, VariantTypeSlice, v.Type())
 	assert.EqualValues(t, []Variant(nil), v.Slice())
 
-	v = NewSlice([]Variant{NewInt(123)})
-	assert.EqualValues(t, []Variant{NewInt(123)}, v.Slice())
+	v = NewSlice([]Variant{NewInt(123), NewString("abc")})
+	assert.EqualValues(t, []Variant{NewInt(123), NewString("abc")}, v.Slice())
+	assert.EqualValues(t, NewInt(123), v.At(0))
+	assert.EqualValues(t, NewString("abc"), v.At(1))
 }
 
 func TestUVariantGC(t *testing.T) {
@@ -121,7 +123,7 @@ func createUVariantBytes() Variant {
 	return NewBytes(testutil.BytesMagicVal)
 }
 
-func BenchmarkUnionVariantIntGet(b *testing.B) {
+func BenchmarkVariantIntGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createUVariantInt()
 		vi := v.Int()
@@ -131,7 +133,7 @@ func BenchmarkUnionVariantIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantFloat64Get(b *testing.B) {
+func BenchmarkVariantFloat64Get(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createUVariantFloat64()
 		vf := v.Float64()
@@ -141,7 +143,7 @@ func BenchmarkUnionVariantFloat64Get(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantStringTypeAndGet(b *testing.B) {
+func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createUVariantString()
 		if v.Type() == VariantTypeString {
@@ -154,7 +156,7 @@ func BenchmarkUnionVariantStringTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantBytesTypeAndGet(b *testing.B) {
+func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createUVariantBytes()
 		if v.Type() == VariantTypeBytes {
@@ -167,7 +169,7 @@ func BenchmarkUnionVariantBytesTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantIntTypeAndGet(b *testing.B) {
+func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createUVariantInt()
 		if v.Type() == VariantTypeInt {
@@ -197,7 +199,7 @@ func createUVariantStringSlice(n int) []Variant {
 	return v
 }
 
-func BenchmarkUnionVariantSliceIntGet(b *testing.B) {
+func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createUVariantIntSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
@@ -208,7 +210,7 @@ func BenchmarkUnionVariantSliceIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantIntSliceTypeAndGet(b *testing.B) {
+func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createUVariantIntSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
@@ -223,7 +225,7 @@ func BenchmarkUnionVariantIntSliceTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantStringSliceTypeAndGet(b *testing.B) {
+func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createUVariantStringSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
@@ -238,7 +240,7 @@ func BenchmarkUnionVariantStringSliceTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantStringSliceGet(b *testing.B) {
+func BenchmarkVariantStringSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createUVariantStringSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
@@ -249,13 +251,65 @@ func BenchmarkUnionVariantStringSliceGet(b *testing.B) {
 	}
 }
 
-func BenchmarkUnionVariantSliceOfVariantGet(b *testing.B) {
+func BenchmarkVariantSliceOfVariantGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
 		for _, v := range vv.Slice() {
 			if v.String() == "" {
 				panic("empty string")
 			}
+		}
+	}
+}
+
+func BenchmarkVariantSliceOfVariantForRangeAll(b *testing.B) {
+	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, v := range vv.Slice() {
+			if v.Len() == 0 {
+				panic("empty string")
+			}
+		}
+	}
+}
+
+func BenchmarkVariantSliceAtLenIter(b *testing.B) {
+	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < vv.Len(); j++ {
+			v := vv.At(j)
+			if v.Len() == 0 {
+				panic("empty string")
+			}
+		}
+	}
+}
+
+func BenchmarkVariantSliceAt(b *testing.B) {
+	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+	b.ResetTimer()
+	l := vv.Len()
+	j := 0
+	for i := 0; i < b.N; i++ {
+		v := vv.At(j)
+		if v.Len() == 0 {
+			panic("empty string")
+		}
+		j++
+		if j >= l {
+			j = 0
+		}
+	}
+}
+
+func BenchmarkVariantSliceLen(b *testing.B) {
+	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		if vv.Len() < -i {
+			panic("empty string")
 		}
 	}
 }
@@ -268,13 +322,63 @@ func createStringSlice(n int) []string {
 	return v
 }
 
-func BenchmarkStringSliceGet(b *testing.B) {
+func BenchmarkNativeStringSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createStringSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
-			if v == "" {
+			if len(v) == 0 {
 				panic("empty string")
 			}
+		}
+	}
+}
+
+func BenchmarkNativeStringSliceForRangeAll(b *testing.B) {
+	vv := createStringSlice(testutil.VariantSliceSize)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for _, v := range vv {
+			if len(v) == 0 {
+				panic("empty string")
+			}
+		}
+	}
+}
+
+func BenchmarkNativeStringSliceAtLenIter(b *testing.B) {
+	vv := createStringSlice(testutil.VariantSliceSize)
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		for j := 0; j < len(vv); j++ {
+			if len(vv[j]) == 0 {
+				panic("empty string")
+			}
+		}
+	}
+}
+
+func BenchmarkNativeStringSliceAt(b *testing.B) {
+	vv := createStringSlice(testutil.VariantSliceSize)
+	b.ResetTimer()
+	l := len(vv)
+	j := 0
+	for i := 0; i < b.N; i++ {
+		v := vv[j]
+		if len(v) == 0 {
+			panic("empty string")
+		}
+		j++
+		if j >= l {
+			j = 0
+		}
+	}
+}
+
+func BenchmarkNativeStringSliceLen(b *testing.B) {
+	vv := createStringSlice(testutil.VariantSliceSize)
+	for i := 0; i < b.N; i++ {
+		if len(vv) < -i {
+			panic("empty string")
 		}
 	}
 }

@@ -115,7 +115,7 @@ func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantSliceIntGet(b *testing.B) {
+func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantIntSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
@@ -124,7 +124,7 @@ func BenchmarkVariantSliceIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantIntSliceTypeAndGet(b *testing.B) {
+func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantIntSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
@@ -138,7 +138,7 @@ func BenchmarkVariantIntSliceTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantStringSliceTypeAndGet(b *testing.B) {
+func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantStringSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
