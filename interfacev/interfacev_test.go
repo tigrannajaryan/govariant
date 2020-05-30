@@ -117,7 +117,7 @@ func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 
 func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			v.Int()
 		}
@@ -126,7 +126,7 @@ func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 
 func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			switch val := v.(type) {
 			case *IVariantInt:
@@ -140,7 +140,7 @@ func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 
 func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createVariantStringSlice(testutil.VariantSliceSize)
+		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			switch val := v.(type) {
 			case *IVariantString:

@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUVariant(t *testing.T) {
+func TestVariant(t *testing.T) {
 	fmt.Printf("Variant size=%v bytes\n", unsafe.Sizeof(Variant{}))
 
 	v := NewEmpty()
@@ -41,10 +41,9 @@ func TestUVariant(t *testing.T) {
 	f2 := v.Float64()
 	assert.EqualValues(t, f1, f2)
 	assert.EqualValues(t, VariantTypeFloat64, v.Type())
-
 }
 
-func TestUVariantMap(t *testing.T) {
+func TestVariantMap(t *testing.T) {
 	v := NewMap(0)
 	assert.EqualValues(t, VariantTypeMap, v.Type())
 	assert.EqualValues(t, map[string]Variant{}, v.Map())
@@ -53,26 +52,26 @@ func TestUVariantMap(t *testing.T) {
 	assert.EqualValues(t, map[string]Variant{"k": NewInt(123)}, v.Map())
 }
 
-func TestUVariantSlice(t *testing.T) {
-	v := NewSlice(nil)
+func TestVariantValueList(t *testing.T) {
+	v := NewValueList(nil)
 	assert.EqualValues(t, VariantTypeValueList, v.Type())
 	assert.EqualValues(t, 0, v.Len())
 	assert.EqualValues(t, []Variant(nil), v.ValueList())
 
-	v = NewSlice([]Variant{NewInt(123), NewString("abc")})
+	v = NewValueList([]Variant{NewInt(123), NewString("abc")})
 	assert.EqualValues(t, 2, v.Len())
 	assert.EqualValues(t, []Variant{NewInt(123), NewString("abc")}, v.ValueList())
 	assert.EqualValues(t, NewInt(123), v.ValueAt(0))
 	assert.EqualValues(t, NewString("abc"), v.ValueAt(1))
 }
 
-func TestUVariantKVList(t *testing.T) {
-	v := NewKVList(0)
+func TestVariantKeyValueList(t *testing.T) {
+	v := NewKeyValueList(0)
 	assert.EqualValues(t, VariantTypeKeyValueList, v.Type())
 	assert.EqualValues(t, 0, v.Len())
 	assert.EqualValues(t, []KeyValue{}, v.KeyValueList())
 
-	v = NewKVList(2)
+	v = NewKeyValueList(2)
 	assert.EqualValues(t, 0, v.Len())
 
 	v.Resize(2)
@@ -91,16 +90,30 @@ func TestUVariantKVList(t *testing.T) {
 
 	kv = v.KeyValueAt(0)
 	assert.NotNil(t, kv)
-	assert.EqualValues(t, kv.Key, "key1")
-	assert.EqualValues(t, kv.Value.String(), "value1")
+	assert.EqualValues(t, "key1", kv.Key)
+	assert.EqualValues(t, "value1", kv.Value.String())
 
 	kv = v.KeyValueAt(1)
 	assert.NotNil(t, kv)
-	assert.EqualValues(t, kv.Key, "key2")
-	assert.EqualValues(t, kv.Value.Float64(), 1.23)
+	assert.EqualValues(t, "key2", kv.Key)
+	assert.EqualValues(t, 1.23, kv.Value.Float64())
+
+	list := v.KeyValueList()
+	assert.EqualValues(t, "key1", list[0].Key)
+	assert.EqualValues(t, "value1", list[0].Value.String())
+	assert.EqualValues(t, "key2", list[1].Key)
+	assert.EqualValues(t, 1.23, list[1].Value.Float64())
+
+	// Update an element.
+	list[0] = KeyValue{"newkey", NewInt(123)}
+
+	// Verify that it updated correctly.
+	list = v.KeyValueList()
+	assert.EqualValues(t, "newkey", list[0].Key)
+	assert.EqualValues(t, 123, list[0].Value.Int())
 }
 
-func TestUVariantGC(t *testing.T) {
+func TestVariantGC(t *testing.T) {
 
 	var bb []*Variant
 
@@ -136,28 +149,28 @@ func TestUVariantGC(t *testing.T) {
 	s2 = s2
 }
 
-func createUVariantInt() Variant {
+func createVariantInt() Variant {
 	for i := 0; i < 1; i++ {
 		return NewInt(testutil.IntMagicVal)
 	}
 	return NewInt(testutil.IntMagicVal)
 }
 
-func createUVariantFloat64() Variant {
+func createVariantFloat64() Variant {
 	for i := 0; i < 1; i++ {
 		return NewFloat64(testutil.Float64MagicVal)
 	}
 	return NewFloat64(0)
 }
 
-func createUVariantString() Variant {
+func createVariantString() Variant {
 	for i := 0; i < 1; i++ {
 		return NewString(testutil.StrMagicVal)
 	}
 	return NewString("def")
 }
 
-func createUVariantBytes() Variant {
+func createVariantBytes() Variant {
 	for i := 0; i < 1; i++ {
 		return NewBytes(testutil.BytesMagicVal)
 	}
@@ -166,7 +179,7 @@ func createUVariantBytes() Variant {
 
 func BenchmarkVariantIntGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createUVariantInt()
+		v := createVariantInt()
 		vi := v.Int()
 		if vi != testutil.IntMagicVal {
 			panic("invalid value")
@@ -176,7 +189,7 @@ func BenchmarkVariantIntGet(b *testing.B) {
 
 func BenchmarkVariantFloat64Get(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createUVariantFloat64()
+		v := createVariantFloat64()
 		vf := v.Float64()
 		if vf != testutil.Float64MagicVal {
 			panic("invalid value")
@@ -186,7 +199,7 @@ func BenchmarkVariantFloat64Get(b *testing.B) {
 
 func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createUVariantString()
+		v := createVariantString()
 		if v.Type() == VariantTypeString {
 			if v.String() == "" {
 				panic("empty string")
@@ -199,7 +212,7 @@ func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 
 func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createUVariantBytes()
+		v := createVariantBytes()
 		if v.Type() == VariantTypeBytes {
 			if v.Bytes() == nil {
 				panic("nil bytes")
@@ -212,7 +225,7 @@ func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 
 func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createUVariantInt()
+		v := createVariantInt()
 		if v.Type() == VariantTypeInt {
 			vi := v.Int()
 			if vi != testutil.IntMagicVal {
@@ -224,7 +237,7 @@ func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func createUVariantIntSlice(n int) []Variant {
+func createVariantIntSlice(n int) []Variant {
 	v := make([]Variant, n)
 	for i := 0; i < n; i++ {
 		v[i] = NewInt(i)
@@ -232,7 +245,7 @@ func createUVariantIntSlice(n int) []Variant {
 	return v
 }
 
-func createUVariantStringSlice(n int) []Variant {
+func createVariantStringSlice(n int) []Variant {
 	v := make([]Variant, n)
 	for i := 0; i < n; i++ {
 		v[i] = NewString("abc")
@@ -242,7 +255,7 @@ func createUVariantStringSlice(n int) []Variant {
 
 func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createUVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Int() < 0 {
 				panic("zero int")
@@ -253,7 +266,7 @@ func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 
 func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createUVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Type() == VariantTypeInt {
 				if v.Int() < 0 {
@@ -268,7 +281,7 @@ func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 
 func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createUVariantStringSlice(testutil.VariantSliceSize)
+		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Type() == VariantTypeString {
 				if v.String() == "" {
@@ -283,7 +296,7 @@ func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 
 func BenchmarkVariantStringSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createUVariantStringSlice(testutil.VariantSliceSize)
+		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.String() == "" {
 				panic("empty string")
@@ -292,9 +305,9 @@ func BenchmarkVariantStringSliceGetAll(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantSliceOfVariantGetAll(b *testing.B) {
+func BenchmarkVariantValueListGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+		vv := NewValueList(createVariantStringSlice(testutil.VariantListSize))
 		for _, v := range vv.ValueList() {
 			if v.String() == "" {
 				panic("empty string")
@@ -303,8 +316,8 @@ func BenchmarkVariantSliceOfVariantGetAll(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantSliceOfVariantForRangeAll(b *testing.B) {
-	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+func BenchmarkVariantValueListForRangeAll(b *testing.B) {
+	vv := NewValueList(createVariantStringSlice(testutil.VariantListSize))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, v := range vv.ValueList() {
@@ -315,8 +328,8 @@ func BenchmarkVariantSliceOfVariantForRangeAll(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantSliceAtLenIter(b *testing.B) {
-	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+func BenchmarkVariantValueListAtLenIter(b *testing.B) {
+	vv := NewValueList(createVariantStringSlice(testutil.VariantListSize))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < vv.Len(); j++ {
@@ -328,8 +341,8 @@ func BenchmarkVariantSliceAtLenIter(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantSliceAt(b *testing.B) {
-	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+func BenchmarkVariantValueListAt(b *testing.B) {
+	vv := NewValueList(createVariantStringSlice(testutil.VariantListSize))
 	b.ResetTimer()
 	l := vv.Len()
 	j := 0
@@ -345,8 +358,8 @@ func BenchmarkVariantSliceAt(b *testing.B) {
 	}
 }
 
-func BenchmarkVariantSliceLen(b *testing.B) {
-	vv := NewSlice(createUVariantStringSlice(testutil.VariantSliceSize))
+func BenchmarkVariantValueListLen(b *testing.B) {
+	vv := NewValueList(createVariantStringSlice(testutil.VariantListSize))
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		if vv.Len() < -i {
@@ -365,7 +378,7 @@ func createStringSlice(n int) []string {
 
 func BenchmarkNativeStringSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createStringSlice(testutil.VariantSliceSize)
+		vv := createStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if len(v) == 0 {
 				panic("empty string")
@@ -375,7 +388,7 @@ func BenchmarkNativeStringSliceGetAll(b *testing.B) {
 }
 
 func BenchmarkNativeStringSliceForRangeAll(b *testing.B) {
-	vv := createStringSlice(testutil.VariantSliceSize)
+	vv := createStringSlice(testutil.VariantListSize)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for _, v := range vv {
@@ -387,7 +400,7 @@ func BenchmarkNativeStringSliceForRangeAll(b *testing.B) {
 }
 
 func BenchmarkNativeStringSliceAtLenIter(b *testing.B) {
-	vv := createStringSlice(testutil.VariantSliceSize)
+	vv := createStringSlice(testutil.VariantListSize)
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
 		for j := 0; j < len(vv); j++ {
@@ -399,7 +412,7 @@ func BenchmarkNativeStringSliceAtLenIter(b *testing.B) {
 }
 
 func BenchmarkNativeStringSliceAt(b *testing.B) {
-	vv := createStringSlice(testutil.VariantSliceSize)
+	vv := createStringSlice(testutil.VariantListSize)
 	b.ResetTimer()
 	l := len(vv)
 	j := 0
@@ -416,7 +429,7 @@ func BenchmarkNativeStringSliceAt(b *testing.B) {
 }
 
 func BenchmarkNativeStringSliceLen(b *testing.B) {
-	vv := createStringSlice(testutil.VariantSliceSize)
+	vv := createStringSlice(testutil.VariantListSize)
 	for i := 0; i < b.N; i++ {
 		if len(vv) < -i {
 			panic("empty string")

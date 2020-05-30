@@ -148,7 +148,7 @@ func createVariantStringSlice(n int) []Variant {
 
 func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Int() < 0 {
 				panic("zero int")
@@ -159,7 +159,7 @@ func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 
 func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Type() == uvariant.VariantTypeInt {
 				if v.Int() < 0 {
@@ -174,7 +174,7 @@ func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 
 func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createVariantStringSlice(testutil.VariantSliceSize)
+		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Type() == uvariant.VariantTypeString {
 				if v.String() == "" {
