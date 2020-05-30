@@ -1,33 +1,33 @@
 package ptrstruct
 
-import "github.com/tigrannajaryan/govariant/uvariant"
+import "github.com/tigrannajaryan/govariant/variant"
 
 type Variant struct {
-	typ   uvariant.VariantType
+	typ   variant.VType
 	bytes []byte
 	str   string
 	i     int
 	f     float64
 }
 
-func (v *Variant) Type() uvariant.VariantType {
+func (v *Variant) Type() variant.VType {
 	return v.typ
 }
 
 func IntVariant(v int) *Variant {
-	return &Variant{typ: uvariant.VariantTypeInt, i: v}
+	return &Variant{typ: variant.VTypeInt, i: v}
 }
 
 func StringVariant(v string) *Variant {
-	return &Variant{typ: uvariant.VariantTypeString, str: v}
+	return &Variant{typ: variant.VTypeString, str: v}
 }
 
 func BytesVariant(v []byte) *Variant {
-	return &Variant{typ: uvariant.VariantTypeBytes, bytes: v}
+	return &Variant{typ: variant.VTypeBytes, bytes: v}
 }
 
 func Float64Variant(v float64) *Variant {
-	return &Variant{typ: uvariant.VariantTypeFloat64, f: v}
+	return &Variant{typ: variant.VTypeFloat64, f: v}
 }
 
 func (v *Variant) Int() int {

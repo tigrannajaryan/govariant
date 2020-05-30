@@ -9,6 +9,7 @@ test:
 	$(MAKE) test-arch GOARCH=386
 
 test-arch:
+	@echo ============================== Testing GOARCH=$(GOARCH) ==============================
 	go test -v ./...
 
 benchmark:
@@ -16,4 +17,5 @@ benchmark:
 	$(MAKE) benchmark-arch GOARCH=386
 
 benchmark-arch:
+	@echo ============================== Benchmarking GOARCH=$(GOARCH) =========================
 	go test -bench . -benchmem $(PKGS) $(BENCHARGS)

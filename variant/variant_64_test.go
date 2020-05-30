@@ -1,6 +1,6 @@
 // +build !386
 
-package uvariant
+package variant
 
 import (
 	"reflect"

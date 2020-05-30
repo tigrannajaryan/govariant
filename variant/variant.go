@@ -1,21 +1,21 @@
-package uvariant
+package variant
 
 import (
 	"reflect"
 	"unsafe"
 )
 
-type VariantType int
+type VType int
 
 const (
-	VariantTypeEmpty = iota
-	VariantTypeInt
-	VariantTypeFloat64
-	VariantTypeString
-	VariantTypeMap
-	VariantTypeBytes
-	VariantTypeValueList
-	VariantTypeKeyValueList
+	VTypeEmpty = iota
+	VTypeInt
+	VTypeFloat64
+	VTypeString
+	VTypeMap
+	VTypeBytes
+	VTypeValueList
+	VTypeKeyValueList
 )
 
 const TypeFieldMask = 0x07
@@ -29,8 +29,8 @@ type KeyValue struct {
 
 type KeyValueList []KeyValue
 
-func (v *Variant) Type() VariantType {
-	return VariantType(v.lenAndType & TypeFieldMask)
+func (v *Variant) Type() VType {
+	return VType(v.lenAndType & TypeFieldMask)
 }
 
 func NewEmpty() Variant {
@@ -42,13 +42,13 @@ func NewString(v string) Variant {
 	if hdr.Len > MaxSliceLen {
 		panic("maximum len exceeded")
 	}
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeString}
+	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VTypeString}
 }
 
 func NewMap(cap int) Variant {
 	m := make(map[string]Variant, cap)
 	ptr := *(*unsafe.Pointer)(unsafe.Pointer(&m))
-	return Variant{ptr: ptr, lenAndType: VariantTypeMap}
+	return Variant{ptr: ptr, lenAndType: VTypeMap}
 }
 
 func (v *Variant) Int() int {
@@ -60,7 +60,7 @@ func (v *Variant) Float64() float64 {
 }
 
 func (v *Variant) String() (s string) {
-	if v.Type() != VariantTypeString {
+	if v.Type() != VTypeString {
 		panic("Variant is not a string")
 	}
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
@@ -74,7 +74,7 @@ func (v *Variant) Map() map[string]Variant {
 }
 
 func (v *Variant) Bytes() (b []byte) {
-	if v.Type() != VariantTypeBytes {
+	if v.Type() != VTypeBytes {
 		panic("Variant is not a bytes")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
@@ -85,7 +85,7 @@ func (v *Variant) Bytes() (b []byte) {
 }
 
 func (v *Variant) ValueList() (s []Variant) {
-	if v.Type() != VariantTypeValueList {
+	if v.Type() != VTypeValueList {
 		panic("Variant is not a slice")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
@@ -96,7 +96,7 @@ func (v *Variant) ValueList() (s []Variant) {
 }
 
 func (v *Variant) ValueAt(i int) Variant {
-	if v.Type() != VariantTypeValueList {
+	if v.Type() != VTypeValueList {
 		panic("Variant is not a slice")
 	}
 	if v.ptr == nil {
@@ -126,7 +126,7 @@ func (v *Variant) Resize(len int) {
 }
 
 func (v *Variant) KeyValueList() (s []KeyValue) {
-	if v.Type() != VariantTypeKeyValueList {
+	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a KeyValueList")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
@@ -137,7 +137,7 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 }
 
 func (v *Variant) KeyValueAt(i int) *KeyValue {
-	if v.Type() != VariantTypeKeyValueList {
+	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a KeyValueList")
 	}
 	if v.ptr == nil {

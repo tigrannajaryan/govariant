@@ -5,9 +5,9 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/tigrannajaryan/govariant/testutil"
+	"github.com/tigrannajaryan/govariant/variant"
 
-	"github.com/tigrannajaryan/govariant/uvariant"
+	"github.com/tigrannajaryan/govariant/testutil"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -19,25 +19,25 @@ func TestUVariant(t *testing.T) {
 	v := BytesVariant(b1)
 	b2 := v.Bytes()
 	assert.EqualValues(t, b1, b2)
-	assert.EqualValues(t, uvariant.VariantTypeBytes, v.Type())
+	assert.EqualValues(t, variant.VTypeBytes, v.Type())
 
 	s1 := "abcdef"
 	v = StringVariant(s1)
 	s2 := v.String()
 	assert.EqualValues(t, s1, s2)
-	assert.EqualValues(t, uvariant.VariantTypeString, v.Type())
+	assert.EqualValues(t, variant.VTypeString, v.Type())
 
 	i1 := 1234
 	v = IntVariant(i1)
 	i2 := v.Int()
 	assert.EqualValues(t, i1, i2)
-	assert.EqualValues(t, uvariant.VariantTypeInt, v.Type())
+	assert.EqualValues(t, variant.VTypeInt, v.Type())
 
 	f1 := 1234.567
 	v = Float64Variant(f1)
 	f2 := v.Float64()
 	assert.EqualValues(t, f1, f2)
-	assert.EqualValues(t, uvariant.VariantTypeFloat64, v.Type())
+	assert.EqualValues(t, variant.VTypeFloat64, v.Type())
 
 	//assert.EqualValues(t, 8, unsafe.Sizeof(int(123)))
 }
@@ -93,7 +93,7 @@ func BenchmarkVariantFloat64Get(b *testing.B) {
 func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantString()
-		if v.Type() == uvariant.VariantTypeString {
+		if v.Type() == variant.VTypeString {
 			if v.String() == "" {
 				panic("empty string")
 			}
@@ -106,7 +106,7 @@ func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantBytes()
-		if v.Type() == uvariant.VariantTypeBytes {
+		if v.Type() == variant.VTypeBytes {
 			if v.Bytes() == nil {
 				panic("nil bytes")
 			}
@@ -119,7 +119,7 @@ func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantInt()
-		if v.Type() == uvariant.VariantTypeInt {
+		if v.Type() == variant.VTypeInt {
 			vi := v.Int()
 			if vi != vi {
 				panic("invalid value")
@@ -161,7 +161,7 @@ func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
-			if v.Type() == uvariant.VariantTypeInt {
+			if v.Type() == variant.VTypeInt {
 				if v.Int() < 0 {
 					panic("zero int")
 				}
@@ -176,7 +176,7 @@ func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
-			if v.Type() == uvariant.VariantTypeString {
+			if v.Type() == variant.VTypeString {
 				if v.String() == "" {
 					panic("empty string")
 				}
