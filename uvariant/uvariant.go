@@ -17,28 +17,16 @@ const (
 	VariantTypeKVList
 )
 
+const TypeFieldMask = 0x07
+const LenFieldBitShiftCount = 3
+
 type KeyValue struct {
 	key   string
 	value Variant
 }
 
 func (v *Variant) Type() VariantType {
-	if v.ptr == nil {
-		// Primitive type, no pointer.
-		return VariantType(v.lenOrType)
-	}
-
-	// Pointer type.
-
-	if v.lenOrType < 0 {
-		return VariantType(-v.lenOrType)
-	}
-
-	if v.capOrVal == -1 {
-		return VariantTypeString
-	}
-
-	return VariantTypeBytes
+	return VariantType(v.lenAndType & TypeFieldMask)
 }
 
 func EmptyVariant() Variant {
@@ -47,13 +35,13 @@ func EmptyVariant() Variant {
 
 func StringVariant(v string) Variant {
 	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenOrType: hdr.Len, capOrVal: -1}
+	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VariantTypeString}
 }
 
 func MapVariant(cap int) Variant {
 	m := make(map[string]Variant, cap)
 	ptr := *(*unsafe.Pointer)(unsafe.Pointer(&m))
-	return Variant{ptr: ptr, lenOrType: -VariantTypeMap}
+	return Variant{ptr: ptr, lenAndType: VariantTypeMap}
 }
 
 func (v *Variant) Int() int {
@@ -67,7 +55,7 @@ func (v *Variant) Float64() float64 {
 func (v *Variant) String() (s string) {
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenOrType
+	dest.Len = v.lenAndType >> LenFieldBitShiftCount
 	return s
 }
 
@@ -78,7 +66,7 @@ func (v *Variant) Map() map[string]Variant {
 func (v *Variant) Bytes() (b []byte) {
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenOrType
+	dest.Len = v.lenAndType >> LenFieldBitShiftCount
 	dest.Cap = int(v.capOrVal)
 	return b
 }
