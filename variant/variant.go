@@ -12,7 +12,6 @@ const (
 	VTypeInt
 	VTypeFloat64
 	VTypeString
-	VTypeMap
 	VTypeBytes
 	VTypeValueList
 	VTypeKeyValueList
@@ -26,7 +25,7 @@ const TypeFieldMask = (1 << TypeFieldBitCount) - 1
 
 // Maximum length of a slice-type that can be stored in Variant. The length of Go slices
 // can be at most maxint, however Variant is not able to store lengths of maxint. Len field
-// in variant uses TypeFieldBitCount bits less than int.
+// in Variant uses TypeFieldBitCount bits less than int.
 const MaxSliceLen = int((^uint(0))>>1) >> TypeFieldBitCount
 
 type KeyValue struct {
@@ -52,12 +51,6 @@ func NewString(v string) Variant {
 	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << TypeFieldBitCount) | VTypeString}
 }
 
-func NewMap(cap int) Variant {
-	m := make(map[string]Variant, cap)
-	ptr := *(*unsafe.Pointer)(unsafe.Pointer(&m))
-	return Variant{ptr: ptr, lenAndType: VTypeMap}
-}
-
 func (v *Variant) Int() int {
 	return int(v.capOrVal)
 }
@@ -76,10 +69,6 @@ func (v *Variant) String() (s string) {
 	return s
 }
 
-func (v *Variant) Map() map[string]Variant {
-	return *(*map[string]Variant)(unsafe.Pointer(&v.ptr))
-}
-
 func (v *Variant) Bytes() (b []byte) {
 	if v.Type() != VTypeBytes {
 		panic("Variant is not a bytes")
@@ -91,6 +80,9 @@ func (v *Variant) Bytes() (b []byte) {
 	return b
 }
 
+// Return the slice of values.
+// Valid to call only if Type==VTypeValueList, will panic otherwise.
+// Elements in the returned slice are allowed to be modified after this call returns.
 func (v *Variant) ValueList() (s []Variant) {
 	if v.Type() != VTypeValueList {
 		panic("Variant is not a slice")
@@ -102,6 +94,9 @@ func (v *Variant) ValueList() (s []Variant) {
 	return s
 }
 
+// Return the value at specified index.
+// Valid to call only if Type==VTypeValueList, will panic otherwise.
+// Will panic if index is negative or exceeds current length or if the slice is nil.
 func (v *Variant) ValueAt(i int) Variant {
 	if v.Type() != VTypeValueList {
 		panic("Variant is not a slice")
@@ -115,10 +110,17 @@ func (v *Variant) ValueAt(i int) Variant {
 	return *(*Variant)(unsafe.Pointer(uintptr(v.ptr) + uintptr(i)*unsafe.Sizeof(Variant{})))
 }
 
+// Return the length of contained slice-based type.
+// Valid to call for String, Bytes, ValueList, KeyValueList types. For other types
+// the returned value is undefined.
 func (v *Variant) Len() int {
 	return v.lenAndType >> TypeFieldBitCount
 }
 
+// Resize the length of contained slice-based type.
+// Valid to call for String, Bytes, ValueList, KeyValueList types.
+// Will panic if len is negative or exceeds the current capacity of the slice or if
+// len exceeds MaxSliceLen.
 func (v *Variant) Resize(len int) {
 	if len < 0 {
 		panic("negative len is not allowed")
@@ -132,6 +134,9 @@ func (v *Variant) Resize(len int) {
 	v.lenAndType = (v.lenAndType & TypeFieldMask) | (len << TypeFieldBitCount)
 }
 
+// Return the slice of KeyValues.
+// Valid to call only if Type==VTypeKeyValueList, will panic otherwise.
+// Elements in the returned slice are allowed to be modified after this call returns.
 func (v *Variant) KeyValueList() (s []KeyValue) {
 	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a KeyValueList")
@@ -143,6 +148,11 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 	return s
 }
 
+// Return the KeyValye at specified index.
+// Valid to call only if Type==VTypeKeyValueList, will panic otherwise.
+// The element is returned by pointer to allowed the caller to modify the element
+// if needed.
+// Will panic if index is negative or exceeds current length or if the slice is nil.
 func (v *Variant) KeyValueAt(i int) *KeyValue {
 	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a KeyValueList")

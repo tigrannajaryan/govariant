@@ -43,15 +43,6 @@ func TestVariant(t *testing.T) {
 	assert.EqualValues(t, VTypeFloat64, v.Type())
 }
 
-func TestVariantMap(t *testing.T) {
-	v := NewMap(0)
-	assert.EqualValues(t, VTypeMap, v.Type())
-	assert.EqualValues(t, map[string]Variant{}, v.Map())
-
-	v.Map()["k"] = NewInt(123)
-	assert.EqualValues(t, map[string]Variant{"k": NewInt(123)}, v.Map())
-}
-
 func TestVariantValueList(t *testing.T) {
 	v := NewValueList(nil)
 	assert.EqualValues(t, VTypeValueList, v.Type())
