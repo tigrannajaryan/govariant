@@ -2,6 +2,7 @@ package variant
 
 import (
 	"fmt"
+	"reflect"
 	"runtime"
 	"strconv"
 	"testing"
@@ -11,6 +12,32 @@ import (
 
 	"github.com/stretchr/testify/assert"
 )
+
+func TestVariantFieldAliasing(t *testing.T) {
+	v := Variant{}
+
+	// Ensure fields correctly alias corresponding fields of StringHeader
+
+	// Data/ptr field.
+	assert.EqualValues(t, unsafe.Sizeof(reflect.StringHeader{}.Data), unsafe.Sizeof(v.ptr))
+
+	// Len field.
+	assert.EqualValues(t, unsafe.Sizeof(reflect.StringHeader{}.Len), unsafe.Sizeof(v.lenAndType))
+
+	// Ensure fields correctly alias corresponding fields of SliceHeader
+
+	// Data/ptr field.
+	assert.EqualValues(t, unsafe.Sizeof(reflect.SliceHeader{}.Data), unsafe.Sizeof(v.ptr))
+
+	// Len field.
+	assert.EqualValues(t, unsafe.Sizeof(reflect.SliceHeader{}.Len), unsafe.Sizeof(v.lenAndType))
+
+	// Cap field.
+	assert.True(t, unsafe.Sizeof(reflect.SliceHeader{}.Cap) <= unsafe.Sizeof(v.capOrVal))
+
+	// Ensure float64 can correctly fit in capOrVal
+	assert.EqualValues(t, unsafe.Sizeof(float64(0.0)), unsafe.Sizeof(v.capOrVal))
+}
 
 func TestVariant(t *testing.T) {
 	fmt.Printf("Variant size=%v bytes\n", unsafe.Sizeof(Variant{}))
