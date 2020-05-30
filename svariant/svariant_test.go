@@ -1,96 +1,100 @@
-package main
+package svariant
 
 import (
 	"fmt"
 	"testing"
 	"unsafe"
 
+	"github.com/tigrannajaryan/govariant/testutil"
+
+	"github.com/tigrannajaryan/govariant/uvariant"
+
 	"github.com/stretchr/testify/assert"
 )
 
-func TestUSVariant(t*testing.T) {
+func TestUSVariant(t *testing.T) {
 	fmt.Printf("SVariant size=%v\n", unsafe.Sizeof(SVariant{}))
 
-	b1 := []byte{1,2,3}
+	b1 := []byte{1, 2, 3}
 	v := BytesSVariant(b1)
 	b2 := v.Bytes()
 	assert.EqualValues(t, b1, b2)
-	assert.EqualValues(t, VariantTypeBytes, v.Type())
+	assert.EqualValues(t, uvariant.VariantTypeBytes, v.Type())
 
 	s1 := "abcdef"
 	v = StringSVariant(s1)
 	s2 := v.String()
 	assert.EqualValues(t, s1, s2)
-	assert.EqualValues(t, VariantTypeString, v.Type())
+	assert.EqualValues(t, uvariant.VariantTypeString, v.Type())
 
 	i1 := 1234
 	v = IntSVariant(i1)
 	i2 := v.Int()
 	assert.EqualValues(t, i1, i2)
-	assert.EqualValues(t, VariantTypeInt, v.Type())
+	assert.EqualValues(t, uvariant.VariantTypeInt, v.Type())
 
 	f1 := 1234.567
 	v = Float64SVariant(f1)
 	f2 := v.Float64()
 	assert.EqualValues(t, f1, f2)
-	assert.EqualValues(t, VariantTypeFloat64, v.Type())
+	assert.EqualValues(t, uvariant.VariantTypeFloat64, v.Type())
 
 	//assert.EqualValues(t, 8, unsafe.Sizeof(int(123)))
 }
 
 func createSVariantInt() SVariant {
-	for i :=0; i<1; i++ {
-		return IntSVariant(IntMagicVal)
+	for i := 0; i < 1; i++ {
+		return IntSVariant(testutil.IntMagicVal)
 	}
 	return IntSVariant(0)
 }
 
 func createSVariantFloat64() SVariant {
-	for i :=0; i<1; i++ {
-		return Float64SVariant(Float64MagicVal)
+	for i := 0; i < 1; i++ {
+		return Float64SVariant(testutil.Float64MagicVal)
 	}
 	return Float64SVariant(0)
 }
 
 func createSVariantString() SVariant {
-	for i :=0; i<1; i++ {
-		return StringSVariant(StrMagicVal)
+	for i := 0; i < 1; i++ {
+		return StringSVariant(testutil.StrMagicVal)
 	}
 	return StringSVariant("def")
 }
 
 func createSVariantBytes() SVariant {
-	for i :=0; i<1; i++ {
-		return BytesSVariant(BytesMagicVal)
+	for i := 0; i < 1; i++ {
+		return BytesSVariant(testutil.BytesMagicVal)
 	}
-	return BytesSVariant(BytesMagicVal)
+	return BytesSVariant(testutil.BytesMagicVal)
 }
 
 func BenchmarkSimpleVariantIntGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		v := createSVariantInt()
 		vi := v.Int()
-		if vi!=vi {
+		if vi != vi {
 			panic("invalid value")
 		}
 	}
 }
 
 func BenchmarkSimpleVariantFloat64Get(b *testing.B) {
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		v := createSVariantFloat64()
 		vf := v.Float64()
-		if vf!= Float64MagicVal {
+		if vf != testutil.Float64MagicVal {
 			panic("invalid value")
 		}
 	}
 }
 
 func BenchmarkSimpleVariantStringTypeAndGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		v := createSVariantString()
-		if v.Type()==VariantTypeString {
-			if v.String()=="" {
+		if v.Type() == uvariant.VariantTypeString {
+			if v.String() == "" {
 				panic("empty string")
 			}
 		} else {
@@ -100,10 +104,10 @@ func BenchmarkSimpleVariantStringTypeAndGet(b *testing.B) {
 }
 
 func BenchmarkSimpleVariantBytesTypeAndGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		v := createSVariantBytes()
-		if v.Type()== VariantTypeBytes {
-			if v.Bytes()==nil {
+		if v.Type() == uvariant.VariantTypeBytes {
+			if v.Bytes() == nil {
 				panic("nil bytes")
 			}
 		} else {
@@ -113,11 +117,11 @@ func BenchmarkSimpleVariantBytesTypeAndGet(b *testing.B) {
 }
 
 func BenchmarkSimpleVariantIntTypeAndGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
+	for i := 0; i < b.N; i++ {
 		v := createSVariantInt()
-		if v.Type()==VariantTypeInt {
+		if v.Type() == uvariant.VariantTypeInt {
 			vi := v.Int()
-			if vi!=vi {
+			if vi != vi {
 				panic("invalid value")
 			}
 		} else {
@@ -128,7 +132,7 @@ func BenchmarkSimpleVariantIntTypeAndGet(b *testing.B) {
 
 func createSVariantIntSlice(n int) []SVariant {
 	v := make([]SVariant, n)
-	for i :=0; i<n; i++ {
+	for i := 0; i < n; i++ {
 		v[i] = IntSVariant(i)
 	}
 	return v
@@ -136,17 +140,17 @@ func createSVariantIntSlice(n int) []SVariant {
 
 func createSVariantStringSlice(n int) []SVariant {
 	v := make([]SVariant, n)
-	for i :=0; i<n; i++ {
+	for i := 0; i < n; i++ {
 		v[i] = StringSVariant("abc")
 	}
 	return v
 }
 
 func BenchmarkSimpleVariantSliceIntGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
-		vv := createSVariantIntSlice(VariantSliceSize)
-		for _,v := range vv {
-			if v.Int()<0 {
+	for i := 0; i < b.N; i++ {
+		vv := createSVariantIntSlice(testutil.VariantSliceSize)
+		for _, v := range vv {
+			if v.Int() < 0 {
 				panic("zero int")
 			}
 		}
@@ -154,11 +158,11 @@ func BenchmarkSimpleVariantSliceIntGet(b *testing.B) {
 }
 
 func BenchmarkSimpleVariantSliceIntTypeAndGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
-		vv := createSVariantIntSlice(VariantSliceSize)
-		for _,v := range vv {
-			if v.Type()==VariantTypeInt {
-				if v.Int()<0 {
+	for i := 0; i < b.N; i++ {
+		vv := createSVariantIntSlice(testutil.VariantSliceSize)
+		for _, v := range vv {
+			if v.Type() == uvariant.VariantTypeInt {
+				if v.Int() < 0 {
 					panic("zero int")
 				}
 			} else {
@@ -169,11 +173,11 @@ func BenchmarkSimpleVariantSliceIntTypeAndGet(b *testing.B) {
 }
 
 func BenchmarkSimpleVariantSliceStringTypeAndGet(b *testing.B) {
-	for i:=0; i<b.N; i++ {
-		vv := createSVariantStringSlice(VariantSliceSize)
-		for _,v := range vv {
-			if v.Type()==VariantTypeString {
-				if v.String()=="" {
+	for i := 0; i < b.N; i++ {
+		vv := createSVariantStringSlice(testutil.VariantSliceSize)
+		for _, v := range vv {
+			if v.Type() == uvariant.VariantTypeString {
+				if v.String() == "" {
 					panic("empty string")
 				}
 			} else {
@@ -182,4 +186,3 @@ func BenchmarkSimpleVariantSliceStringTypeAndGet(b *testing.B) {
 		}
 	}
 }
-

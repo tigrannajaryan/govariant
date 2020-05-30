@@ -1,11 +1,13 @@
-package main
+package uvariant
 
 type VariantType int
+
 const (
 	VariantTypeEmpty = iota
 	VariantTypeInt
 	VariantTypeFloat64
 	VariantTypeString
+	VariantTypeMap
 	VariantTypeBytes
 )
 

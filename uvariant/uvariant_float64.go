@@ -1,13 +1,13 @@
 // +build 386
 
-package main
+package uvariant
 
 import (
 	"unsafe"
 )
 
 type VariantF64 struct {
-	ptr unsafe.Pointer
+	ptr       unsafe.Pointer
 	lenOrType int
 	//capOrVal int
 	//last32bit int // used for second half of float64.
@@ -16,7 +16,7 @@ type VariantF64 struct {
 
 func Float64VariantF64(v float64) (r VariantF64) {
 	return VariantF64{
-		lenOrType:1,
+		lenOrType: 1,
 		// First half of float64.
 		//capOrVal: *(*int)(unsafe.Pointer(&v)),
 		//// Second half of float64.
@@ -25,7 +25,7 @@ func Float64VariantF64(v float64) (r VariantF64) {
 	}
 }
 
-func (v* VariantF64) Float64() float64 {
+func (v *VariantF64) Float64() float64 {
 	//return *(*float64)(unsafe.Pointer(&v.capOrVal))
 	// return v.f
 	return *(*float64)(unsafe.Pointer(&v.f))
@@ -33,6 +33,6 @@ func (v* VariantF64) Float64() float64 {
 }
 
 func main() {
-	v:=VariantF64{}
+	v := VariantF64{}
 	v.Float64()
 }

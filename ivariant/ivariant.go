@@ -1,4 +1,4 @@
-package main
+package ivariant
 
 type IVariant interface {
 	Int() int
@@ -78,4 +78,3 @@ func (i IVariantBytes) Bytes() []byte {
 func (i IVariantBytes) String() string {
 	panic("invalid type")
 }
-

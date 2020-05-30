@@ -1,15 +1,16 @@
 // +build !386
 
-package main
+package uvariant
 
 import (
-	"github.com/stretchr/testify/assert"
 	"reflect"
 	"testing"
 	"unsafe"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func TestUVariantFieldAliasing(t*testing.T) {
+func TestUVariantFieldAliasing(t *testing.T) {
 	v := Variant{}
 
 	// Ensure fields correctly alias corresponding fields of StringHeader
@@ -38,5 +39,8 @@ func TestUVariantFieldAliasing(t*testing.T) {
 
 	// Ensure float64 can correctly fit in capOrVal
 	assert.EqualValues(t, unsafe.Sizeof(float64(0.0)), unsafe.Sizeof(v.capOrVal))
-}
 
+	// Ensure map fits in the ptr.
+	m := make(map[string]Variant, 1)
+	assert.EqualValues(t, unsafe.Sizeof(m), unsafe.Sizeof(v.ptr))
+}
