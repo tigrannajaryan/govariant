@@ -1,4 +1,4 @@
-package ivariant
+package interfacev
 
 type IVariant interface {
 	Int() int

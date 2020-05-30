@@ -1,4 +1,4 @@
-package sptrvariant
+package ptrstruct
 
 import "github.com/tigrannajaryan/govariant/uvariant"
 

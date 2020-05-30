@@ -13,7 +13,7 @@ import (
 )
 
 func TestUVariant(t *testing.T) {
-	fmt.Printf("Variant size=%v\n", unsafe.Sizeof(Variant{}))
+	fmt.Printf("Variant size=%v bytes\n", unsafe.Sizeof(Variant{}))
 
 	v := EmptyVariant()
 	assert.EqualValues(t, VariantTypeEmpty, v.Type())
@@ -57,7 +57,7 @@ func TestUVariantGC(t *testing.T) {
 	var v1 Variant
 	s1 := strconv.Itoa(1234)
 	v1 = StringVariant(s1)
-	fmt.Printf("ptr=%v, s=%s\n", v1.ptr, v1.String())
+	v1 = v1
 
 	for i := 0; i < 10000; i++ {
 		s1 := strconv.Itoa(i)
@@ -70,28 +70,20 @@ func TestUVariantGC(t *testing.T) {
 	var v Variant
 	s1 = strconv.Itoa(1234)
 	v = StringVariant(s1)
-	fmt.Printf("ptr=%#v, s=%s\n", v.ptr, v.String())
 
 	s2 := v.String()
 
 	var ms runtime.MemStats
 	runtime.ReadMemStats(&ms)
-	fmt.Printf("%v %v %v %v\n", ms.Alloc, ms.TotalAlloc, ms.HeapObjects, ms.Frees)
 
 	bb = nil
 
 	runtime.GC()
 
 	runtime.ReadMemStats(&ms)
-	fmt.Printf("%v %v %v %v\n", ms.Alloc, ms.TotalAlloc, ms.HeapObjects, ms.Frees)
 
-	fmt.Printf("ptr=%#v, s=%s\n", v.ptr, v.String())
 	s2 = v.String()
 	s2 = s2
-
-	if len(bb) > 0 {
-		fmt.Printf("%#v\n", bb[0])
-	}
 }
 
 func createUVariantInt() Variant {

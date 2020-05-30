@@ -1,4 +1,4 @@
-package sptrvariant
+package ptrstruct
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 )
 
 func TestUVariant(t *testing.T) {
-	fmt.Printf("Variant size=%v\n", unsafe.Sizeof(Variant{}))
+	fmt.Printf("Variant size=%v bytes\n", unsafe.Sizeof(Variant{}))
 
 	b1 := []byte{1, 2, 3}
 	v := BytesVariant(b1)

@@ -1,4 +1,4 @@
-package svariant
+package plainstruct
 
 import "github.com/tigrannajaryan/govariant/uvariant"
 

@@ -1,4 +1,4 @@
-package ivariant
+package interfacev
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/tigrannajaryan/govariant/testutil"
 )
 
-func createIVariantInt() IVariant {
+func createVariantInt() IVariant {
 	for i := 0; i < 1; i++ {
 		ivi := IVariantInt(testutil.IntMagicVal)
 		return &ivi
@@ -14,7 +14,7 @@ func createIVariantInt() IVariant {
 	return nil
 }
 
-func createIVariantFloat64() IVariant {
+func createVariantFloat64() IVariant {
 	for i := 0; i < 1; i++ {
 		ivi := IVariantFloat64(testutil.Float64MagicVal)
 		return &ivi
@@ -22,7 +22,7 @@ func createIVariantFloat64() IVariant {
 	return nil
 }
 
-func createIVariantString() IVariant {
+func createVariantString() IVariant {
 	for i := 0; i < 1; i++ {
 		ivs := IVariantString(testutil.StrMagicVal)
 		return &ivs
@@ -30,7 +30,7 @@ func createIVariantString() IVariant {
 	return nil
 }
 
-func createIVariantBytes() IVariant {
+func createVariantBytes() IVariant {
 	for i := 0; i < 1; i++ {
 		ivs := IVariantBytes(testutil.BytesMagicVal)
 		return &ivs
@@ -38,7 +38,7 @@ func createIVariantBytes() IVariant {
 	return nil
 }
 
-func createIVariantIntSlice(n int) []IVariant {
+func createVariantIntSlice(n int) []IVariant {
 	v := make([]IVariant, n)
 	for i := 0; i < n; i++ {
 		ivi := IVariantInt(i)
@@ -47,7 +47,7 @@ func createIVariantIntSlice(n int) []IVariant {
 	return v
 }
 
-func createIVariantStringSlice(n int) []IVariant {
+func createVariantStringSlice(n int) []IVariant {
 	v := make([]IVariant, n)
 	for i := 0; i < n; i++ {
 		ivs := IVariantString(testutil.StrMagicVal)
@@ -56,9 +56,9 @@ func createIVariantStringSlice(n int) []IVariant {
 	return v
 }
 
-func BenchmarkInterfaceVariantIntGet(b *testing.B) {
+func BenchmarkVariantIntGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createIVariantInt()
+		v := createVariantInt()
 		vi := v.Int()
 		if vi != testutil.IntMagicVal {
 			panic("invalid value")
@@ -66,9 +66,9 @@ func BenchmarkInterfaceVariantIntGet(b *testing.B) {
 	}
 }
 
-func BenchmarkInterfaceVariantFloat64Get(b *testing.B) {
+func BenchmarkVariantFloat64Get(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createIVariantFloat64()
+		v := createVariantFloat64()
 		vi := v.Float64()
 		if vi != testutil.Float64MagicVal {
 			panic("invalid value")
@@ -76,9 +76,9 @@ func BenchmarkInterfaceVariantFloat64Get(b *testing.B) {
 	}
 }
 
-func BenchmarkInterfaceVariantIntTypeAndGet(b *testing.B) {
+func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createIVariantInt()
+		v := createVariantInt()
 		switch val := v.(type) {
 		case *IVariantInt:
 			vi := val.Int()
@@ -91,9 +91,9 @@ func BenchmarkInterfaceVariantIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkInterfaceVariantStringTypeAndGet(b *testing.B) {
+func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createIVariantString()
+		v := createVariantString()
 		switch val := v.(type) {
 		case *IVariantString:
 			val.String()
@@ -103,9 +103,9 @@ func BenchmarkInterfaceVariantStringTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkInterfaceVariantBytesTypeAndGet(b *testing.B) {
+func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		v := createIVariantBytes()
+		v := createVariantBytes()
 		switch val := v.(type) {
 		case *IVariantBytes:
 			val.Bytes()
@@ -115,18 +115,18 @@ func BenchmarkInterfaceVariantBytesTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkInterfaceVariantSliceIntGet(b *testing.B) {
+func BenchmarkVariantSliceIntGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createIVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
 			v.Int()
 		}
 	}
 }
 
-func BenchmarkInterfaceVariantSliceIntTypeAndGet(b *testing.B) {
+func BenchmarkVariantSliceIntTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createIVariantIntSlice(testutil.VariantSliceSize)
+		vv := createVariantIntSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
 			switch val := v.(type) {
 			case *IVariantInt:
@@ -138,9 +138,9 @@ func BenchmarkInterfaceVariantSliceIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func BenchmarkInterfaceVariantSliceStringTypeAndGet(b *testing.B) {
+func BenchmarkVariantSliceStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		vv := createIVariantStringSlice(testutil.VariantSliceSize)
+		vv := createVariantStringSlice(testutil.VariantSliceSize)
 		for _, v := range vv {
 			switch val := v.(type) {
 			case *IVariantString:
