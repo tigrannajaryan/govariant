@@ -18,9 +18,16 @@ const (
 	VTypeKeyValueList
 )
 
-const TypeFieldMask = 0x07
-const LenFieldBitShiftCount = 3
-const MaxSliceLen = int((^uint(0))>>1) >> LenFieldBitShiftCount
+// Number of buts to use for Type field. This should be wide to fit all VType values.
+const TypeFieldBitCount = 3
+
+// Bit mask for Type part of lenAndType field.
+const TypeFieldMask = (1 << TypeFieldBitCount) - 1
+
+// Maximum length of a slice-type that can be stored in Variant. The length of Go slices
+// can be at most maxint, however Variant is not able to store lengths of maxint. Len field
+// in variant uses TypeFieldBitCount bits less than int.
+const MaxSliceLen = int((^uint(0))>>1) >> TypeFieldBitCount
 
 type KeyValue struct {
 	Key   string
@@ -42,7 +49,7 @@ func NewString(v string) Variant {
 	if hdr.Len > MaxSliceLen {
 		panic("maximum len exceeded")
 	}
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << LenFieldBitShiftCount) | VTypeString}
+	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << TypeFieldBitCount) | VTypeString}
 }
 
 func NewMap(cap int) Variant {
@@ -65,7 +72,7 @@ func (v *Variant) String() (s string) {
 	}
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> LenFieldBitShiftCount
+	dest.Len = v.lenAndType >> TypeFieldBitCount
 	return s
 }
 
@@ -79,7 +86,7 @@ func (v *Variant) Bytes() (b []byte) {
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> LenFieldBitShiftCount
+	dest.Len = v.lenAndType >> TypeFieldBitCount
 	dest.Cap = int(v.capOrVal)
 	return b
 }
@@ -90,7 +97,7 @@ func (v *Variant) ValueList() (s []Variant) {
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> LenFieldBitShiftCount
+	dest.Len = v.lenAndType >> TypeFieldBitCount
 	dest.Cap = int(v.capOrVal)
 	return s
 }
@@ -109,7 +116,7 @@ func (v *Variant) ValueAt(i int) Variant {
 }
 
 func (v *Variant) Len() int {
-	return v.lenAndType >> LenFieldBitShiftCount
+	return v.lenAndType >> TypeFieldBitCount
 }
 
 func (v *Variant) Resize(len int) {
@@ -122,7 +129,7 @@ func (v *Variant) Resize(len int) {
 	if len > MaxSliceLen {
 		panic("maximum len exceeded")
 	}
-	v.lenAndType = (v.lenAndType & TypeFieldMask) | (len << LenFieldBitShiftCount)
+	v.lenAndType = (v.lenAndType & TypeFieldMask) | (len << TypeFieldBitCount)
 }
 
 func (v *Variant) KeyValueList() (s []KeyValue) {
@@ -131,7 +138,7 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> LenFieldBitShiftCount
+	dest.Len = v.lenAndType >> TypeFieldBitCount
 	dest.Cap = int(v.capOrVal)
 	return s
 }

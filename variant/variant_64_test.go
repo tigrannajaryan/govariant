@@ -1,4 +1,4 @@
-// +build !386
+// +build amd64
 
 package variant
 
