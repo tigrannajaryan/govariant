@@ -16,4 +16,4 @@ benchmark:
 	$(MAKE) benchmark-arch GOARCH=386
 
 benchmark-arch:
-	go test -bench . -benchmem $(PKGS)
+	go test -bench . -benchmem $(PKGS) $(BENCHARGS)

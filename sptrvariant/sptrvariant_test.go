@@ -1,4 +1,4 @@
-package svariant
+package sptrvariant
 
 import (
 	"fmt"
@@ -42,28 +42,28 @@ func TestUVariant(t *testing.T) {
 	//assert.EqualValues(t, 8, unsafe.Sizeof(int(123)))
 }
 
-func createVariantInt() Variant {
+func createVariantInt() *Variant {
 	for i := 0; i < 1; i++ {
 		return IntVariant(testutil.IntMagicVal)
 	}
 	return IntVariant(0)
 }
 
-func createVariantFloat64() Variant {
+func createVariantFloat64() *Variant {
 	for i := 0; i < 1; i++ {
 		return Float64Variant(testutil.Float64MagicVal)
 	}
 	return Float64Variant(0)
 }
 
-func createVariantString() Variant {
+func createVariantString() *Variant {
 	for i := 0; i < 1; i++ {
 		return StringVariant(testutil.StrMagicVal)
 	}
 	return StringVariant("def")
 }
 
-func createVariantBytes() Variant {
+func createVariantBytes() *Variant {
 	for i := 0; i < 1; i++ {
 		return BytesVariant(testutil.BytesMagicVal)
 	}
@@ -130,16 +130,16 @@ func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	}
 }
 
-func createVariantIntSlice(n int) []Variant {
-	v := make([]Variant, n)
+func createVariantIntSlice(n int) []*Variant {
+	v := make([]*Variant, n)
 	for i := 0; i < n; i++ {
 		v[i] = IntVariant(i)
 	}
 	return v
 }
 
-func createVariantStringSlice(n int) []Variant {
-	v := make([]Variant, n)
+func createVariantStringSlice(n int) []*Variant {
+	v := make([]*Variant, n)
 	for i := 0; i < n; i++ {
 		v[i] = StringVariant("abc")
 	}
