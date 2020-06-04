@@ -90,6 +90,20 @@ func BenchmarkVariantFloat64Get(b *testing.B) {
 	}
 }
 
+func BenchmarkVariantIntTypeAndGet(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		v := createVariantInt()
+		if v.Type() == variant.VTypeInt {
+			vi := v.Int()
+			if vi != vi {
+				panic("invalid value")
+			}
+		} else {
+			panic("invalid type")
+		}
+	}
+}
+
 func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantString()
@@ -109,20 +123,6 @@ func BenchmarkVariantBytesTypeAndGet(b *testing.B) {
 		if v.Type() == variant.VTypeBytes {
 			if v.Bytes() == nil {
 				panic("nil bytes")
-			}
-		} else {
-			panic("invalid type")
-		}
-	}
-}
-
-func BenchmarkVariantIntTypeAndGet(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		v := createVariantInt()
-		if v.Type() == variant.VTypeInt {
-			vi := v.Int()
-			if vi != vi {
-				panic("invalid value")
 			}
 		} else {
 			panic("invalid type")

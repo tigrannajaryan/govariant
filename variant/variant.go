@@ -150,8 +150,8 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 
 // Return the KeyValye at specified index.
 // Valid to call only if Type==VTypeKeyValueList, will panic otherwise.
-// The element is returned by pointer to allowed the caller to modify the element
-// if needed.
+// The element is returned by pointer to allow the caller to modify the element
+// by assigning to it if needed.
 // Will panic if index is negative or exceeds current length or if the slice is nil.
 func (v *Variant) KeyValueAt(i int) *KeyValue {
 	if v.Type() != VTypeKeyValueList {
