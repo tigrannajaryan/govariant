@@ -44,30 +44,35 @@ func TestVariant(t *testing.T) {
 
 	v := NewEmpty()
 	assert.EqualValues(t, VTypeEmpty, v.Type())
+	assert.EqualValues(t, "", v.String())
 
-	b1 := []byte{1, 2, 3}
+	b1 := []byte{1, 2, 0xA}
 	v = NewBytes(b1)
 	b2 := v.Bytes()
 	assert.EqualValues(t, b1, b2)
 	assert.EqualValues(t, VTypeBytes, v.Type())
+	assert.EqualValues(t, "0x01020A", v.String())
 
 	s1 := "abcdef"
 	v = NewString(s1)
-	s2 := v.String()
+	s2 := v.StringVal()
 	assert.EqualValues(t, s1, s2)
 	assert.EqualValues(t, VTypeString, v.Type())
+	assert.EqualValues(t, `"abcdef"`, v.String())
 
 	i1 := 1234
 	v = NewInt(i1)
-	i2 := v.Int()
+	i2 := v.IntVal()
 	assert.EqualValues(t, i1, i2)
 	assert.EqualValues(t, VTypeInt, v.Type())
+	assert.EqualValues(t, "1234", v.String())
 
 	f1 := 1234.567
 	v = NewFloat64(f1)
-	f2 := v.Float64()
+	f2 := v.Float64Val()
 	assert.EqualValues(t, f1, f2)
 	assert.EqualValues(t, VTypeFloat64, v.Type())
+	assert.EqualValues(t, "1234.567", v.String())
 }
 
 func TestVariantValueList(t *testing.T) {
@@ -75,60 +80,68 @@ func TestVariantValueList(t *testing.T) {
 	assert.EqualValues(t, VTypeValueList, v.Type())
 	assert.EqualValues(t, 0, v.Len())
 	assert.EqualValues(t, []Variant(nil), v.ValueList())
+	assert.EqualValues(t, "[]", v.String())
 
 	v = NewValueList([]Variant{NewInt(123), NewString("abc")})
 	assert.EqualValues(t, 2, v.Len())
 	assert.EqualValues(t, []Variant{NewInt(123), NewString("abc")}, v.ValueList())
 	assert.EqualValues(t, NewInt(123), v.ValueAt(0))
 	assert.EqualValues(t, NewString("abc"), v.ValueAt(1))
+	assert.EqualValues(t, `[123,"abc"]`, v.String())
 }
 
 func TestVariantKeyValueList(t *testing.T) {
-	v := NewKeyValueList(0)
+	v := NewKeyValueList([]KeyValue{})
 	assert.EqualValues(t, VTypeKeyValueList, v.Type())
 	assert.EqualValues(t, 0, v.Len())
 	assert.EqualValues(t, []KeyValue{}, v.KeyValueList())
+	assert.EqualValues(t, "{}", v.String())
 
-	v = NewKeyValueList(2)
+	v = NewKeyValueList(make([]KeyValue, 0, 2))
 	assert.EqualValues(t, 0, v.Len())
+	assert.EqualValues(t, "{}", v.String())
 
 	v.Resize(2)
 	assert.EqualValues(t, 2, v.Len())
 	assert.EqualValues(t, []KeyValue{{}, {}}, v.KeyValueList())
+	assert.EqualValues(t, `{"":,"":}`, v.String())
 
 	kv := v.KeyValueAt(0)
 	assert.NotNil(t, kv)
 	kv.Key = "key1"
 	kv.Value = NewString("value1")
+	assert.EqualValues(t, `{"key1":"value1","":}`, v.String())
 
 	kv = v.KeyValueAt(1)
 	assert.NotNil(t, kv)
-	kv.Key = "key2"
+	kv.Key = `key2"`
 	kv.Value = NewFloat64(1.23)
+	assert.EqualValues(t, `{"key1":"value1","key2\"":1.23}`, v.String())
 
 	kv = v.KeyValueAt(0)
 	assert.NotNil(t, kv)
 	assert.EqualValues(t, "key1", kv.Key)
-	assert.EqualValues(t, "value1", kv.Value.String())
+	assert.EqualValues(t, "value1", kv.Value.StringVal())
 
 	kv = v.KeyValueAt(1)
 	assert.NotNil(t, kv)
-	assert.EqualValues(t, "key2", kv.Key)
-	assert.EqualValues(t, 1.23, kv.Value.Float64())
+	assert.EqualValues(t, `key2"`, kv.Key)
+	assert.EqualValues(t, 1.23, kv.Value.Float64Val())
 
 	list := v.KeyValueList()
 	assert.EqualValues(t, "key1", list[0].Key)
-	assert.EqualValues(t, "value1", list[0].Value.String())
-	assert.EqualValues(t, "key2", list[1].Key)
-	assert.EqualValues(t, 1.23, list[1].Value.Float64())
+	assert.EqualValues(t, "value1", list[0].Value.StringVal())
+	assert.EqualValues(t, `key2"`, list[1].Key)
+	assert.EqualValues(t, 1.23, list[1].Value.Float64Val())
 
 	// Update an element.
-	list[0] = KeyValue{"newkey", NewInt(123)}
+	list[0] = KeyValue{"newKey", NewInt(123)}
 
 	// Verify that it updated correctly.
 	list = v.KeyValueList()
-	assert.EqualValues(t, "newkey", list[0].Key)
-	assert.EqualValues(t, 123, list[0].Value.Int())
+	assert.EqualValues(t, "newKey", list[0].Key)
+	assert.EqualValues(t, 123, list[0].Value.IntVal())
+	assert.EqualValues(t, `{"newKey":123,"key2\"":1.23}`, v.String())
 }
 
 func TestVariantGC(t *testing.T) {
@@ -152,7 +165,7 @@ func TestVariantGC(t *testing.T) {
 	s1 = strconv.Itoa(1234)
 	v = NewString(s1)
 
-	s2 := v.String()
+	s2 := v.StringVal()
 
 	var ms runtime.MemStats
 	runtime.ReadMemStats(&ms)
@@ -163,7 +176,7 @@ func TestVariantGC(t *testing.T) {
 
 	runtime.ReadMemStats(&ms)
 
-	s2 = v.String()
+	s2 = v.StringVal()
 	s2 = s2
 }
 
@@ -198,7 +211,7 @@ func createVariantBytes() Variant {
 func BenchmarkVariantIntGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantInt()
-		vi := v.Int()
+		vi := v.IntVal()
 		if vi != testutil.IntMagicVal {
 			panic("invalid value")
 		}
@@ -208,7 +221,7 @@ func BenchmarkVariantIntGet(b *testing.B) {
 func BenchmarkVariantFloat64Get(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantFloat64()
-		vf := v.Float64()
+		vf := v.Float64Val()
 		if vf != testutil.Float64MagicVal {
 			panic("invalid value")
 		}
@@ -219,7 +232,7 @@ func BenchmarkVariantIntTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantInt()
 		if v.Type() == VTypeInt {
-			vi := v.Int()
+			vi := v.IntVal()
 			if vi != testutil.IntMagicVal {
 				panic("invalid value")
 			}
@@ -233,7 +246,7 @@ func BenchmarkVariantStringTypeAndGet(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		v := createVariantString()
 		if v.Type() == VTypeString {
-			if v.String() == "" {
+			if v.StringVal() == "" {
 				panic("empty string")
 			}
 		} else {
@@ -275,7 +288,7 @@ func BenchmarkVariantIntSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
-			if v.Int() < 0 {
+			if v.IntVal() < 0 {
 				panic("zero int")
 			}
 		}
@@ -287,7 +300,7 @@ func BenchmarkVariantIntSliceTypeAndGetAll(b *testing.B) {
 		vv := createVariantIntSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Type() == VTypeInt {
-				if v.Int() < 0 {
+				if v.IntVal() < 0 {
 					panic("zero int")
 				}
 			} else {
@@ -302,7 +315,7 @@ func BenchmarkVariantStringSliceTypeAndGetAll(b *testing.B) {
 		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
 			if v.Type() == VTypeString {
-				if v.String() == "" {
+				if v.StringVal() == "" {
 					panic("empty string")
 				}
 			} else {
@@ -316,7 +329,7 @@ func BenchmarkVariantStringSliceGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := createVariantStringSlice(testutil.VariantListSize)
 		for _, v := range vv {
-			if v.String() == "" {
+			if v.StringVal() == "" {
 				panic("empty string")
 			}
 		}
@@ -327,7 +340,7 @@ func BenchmarkVariantValueListGetAll(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		vv := NewValueList(createVariantStringSlice(testutil.VariantListSize))
 		for _, v := range vv.ValueList() {
-			if v.String() == "" {
+			if v.StringVal() == "" {
 				panic("empty string")
 			}
 		}

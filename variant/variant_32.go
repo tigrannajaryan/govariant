@@ -1,5 +1,6 @@
 // +build 386
 
+// This file contains Variant implementation specific to GOARCH=386
 package variant
 
 import (
@@ -16,39 +17,64 @@ type Variant struct {
 	// Len is used only for the slice-based types.
 	lenAndType int
 
-	// Capacity for slice-based types, or the value for other types. For Float64 type
+	// Capacity for slice-based types, or the value for other types. For Float64Val type
 	// contains the 64 bits of the floating point value.
 	capOrVal int64
 }
 
+// NewInt creates a Variant of VTypeInt type.
 func NewInt(v int) Variant {
-	return Variant{lenAndType: VTypeInt, capOrVal: int64(v)}
+	return Variant{
+		lenAndType: int(VTypeInt),
+		capOrVal:   int64(v),
+	}
 }
 
+// NewFloat64 creates a Variant of VTypeFloat64 type.
 func NewFloat64(v float64) (r Variant) {
-	r.lenAndType = VTypeFloat64
+	r.lenAndType = int(VTypeFloat64)
 	*(*float64)(unsafe.Pointer(&r.capOrVal)) = v
 	return r
 }
 
+// NewBytes creates a Variant of VTypeBytes type and initializes it with the specified
+// slice of bytes.
 func NewBytes(v []byte) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 	if hdr.Len > MaxSliceLen {
 		panic("maximum len exceeded")
 	}
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << TypeFieldBitCount) | VTypeBytes, capOrVal: int64(hdr.Cap)}
+
+	return Variant{
+		ptr:        unsafe.Pointer(hdr.Data),
+		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeBytes),
+		capOrVal:   int64(hdr.Cap),
+	}
 }
 
+// NewValueList creates a Variant of VTypeValueList type and initializes it with the
+// specified slice of Variants.
 func NewValueList(v []Variant) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 	if hdr.Len > MaxSliceLen {
 		panic("maximum len exceeded")
 	}
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << TypeFieldBitCount) | VTypeValueList, capOrVal: int64(hdr.Cap)}
+
+	return Variant{
+		ptr:        unsafe.Pointer(hdr.Data),
+		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeValueList),
+		capOrVal:   int64(hdr.Cap),
+	}
 }
 
-func NewKeyValueList(cap int) Variant {
-	v := make([]KeyValue, 0, cap)
+// NewKeyValueList creates a Variant of VTypeKeyValueList type and initializes it with the
+// specified slice of KeyValues.
+func NewKeyValueList(v []KeyValue) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
-	return Variant{ptr: unsafe.Pointer(hdr.Data), lenAndType: (hdr.Len << TypeFieldBitCount) | VTypeKeyValueList, capOrVal: int64(hdr.Cap)}
+
+	return Variant{
+		ptr:        unsafe.Pointer(hdr.Data),
+		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeKeyValueList),
+		capOrVal:   int64(hdr.Cap),
+	}
 }
