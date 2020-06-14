@@ -12,13 +12,12 @@
 // Variant uses an efficient data structure that is small and fast to operate on.
 // On 64 bit systems the size of Variant is 24 bytes for scalar types (such as int or
 // float64) plus any necessary additional data required by variable-sized types (String,
-// List, etc). For variable-sized types the storage is as compact as built-in Go strings
-// or slices (although it is not bit-for-bit identical).
+// List, etc).
 //
 // To maximize the performance Variant functions do not return errors. All functions define
 // clear contracts that describe in which case the calls are valid. In such cases it is
 // guaranteed that no errors occur. If the caller violates the contract and it results
-// in erroneous situation one of the 2 things will happen (and such behavior is clearly
+// in erroneous situation one of the 2 things will happen (and such behavior is
 // documented for each function):
 //
 // - Function will return an undefined value.

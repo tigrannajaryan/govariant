@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestVariant64FieldAliasing(t *testing.T) {
+func TestVariantFloat64FieldStorage(t *testing.T) {
 	v := Variant{}
 
 	// Ensure float64 can correctly fit in capOrVal

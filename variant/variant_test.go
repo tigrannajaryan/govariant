@@ -8,9 +8,9 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/tigrannajaryan/govariant/testutil"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/tigrannajaryan/govariant/internal/testutil"
 )
 
 func TestVariantFieldAliasing(t *testing.T) {

@@ -5,11 +5,10 @@ import (
 	"testing"
 	"unsafe"
 
-	"github.com/tigrannajaryan/govariant/variant"
-
-	"github.com/tigrannajaryan/govariant/testutil"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/tigrannajaryan/govariant/internal/testutil"
+	"github.com/tigrannajaryan/govariant/variant"
 )
 
 func TestUVariant(t *testing.T) {

@@ -3,7 +3,7 @@ package interfacev
 import (
 	"testing"
 
-	"github.com/tigrannajaryan/govariant/testutil"
+	"github.com/tigrannajaryan/govariant/internal/testutil"
 )
 
 func createVariantInt() IVariant {
