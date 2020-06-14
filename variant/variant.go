@@ -184,6 +184,11 @@ func (v *Variant) Len() int {
 // Will panic if len is negative or exceeds the current capacity of the slice or if
 // len exceeds MaxSliceLen.
 func (v *Variant) Resize(len int) {
+	switch v.Type() {
+	case VTypeEmpty, VTypeInt, VTypeFloat64:
+		panic(fmt.Sprintf("Cannot resize Variant type %d", v.Type()))
+	}
+
 	if len < 0 {
 		panic("negative len is not allowed")
 	}
@@ -256,5 +261,5 @@ func (v Variant) String() string {
 		}
 		return "{" + strings.Join(strs, ",") + "}"
 	}
-	return ""
+	panic("Invalid Variant type")
 }

@@ -81,6 +81,7 @@ func TestVariantValueList(t *testing.T) {
 	assert.EqualValues(t, 0, v.Len())
 	assert.EqualValues(t, []Variant(nil), v.ValueList())
 	assert.EqualValues(t, "[]", v.String())
+	assert.Panics(t, func() { v.ValueAt(0) }, "should panic on nil slice")
 
 	v = NewValueList([]Variant{NewInt(123), NewString("abc")})
 	assert.EqualValues(t, 2, v.Len())
@@ -88,23 +89,30 @@ func TestVariantValueList(t *testing.T) {
 	assert.EqualValues(t, NewInt(123), v.ValueAt(0))
 	assert.EqualValues(t, NewString("abc"), v.ValueAt(1))
 	assert.EqualValues(t, `[123,"abc"]`, v.String())
+	assert.Panics(t, func() { v.ValueAt(-1) }, "should panic on negative index")
+	assert.Panics(t, func() { v.ValueAt(2) }, "should panic on out of bounds")
 }
 
 func TestVariantKeyValueList(t *testing.T) {
-	v := NewKeyValueList([]KeyValue{})
+	var nilKvl []KeyValue
+	v := NewKeyValueList(nilKvl)
 	assert.EqualValues(t, VTypeKeyValueList, v.Type())
 	assert.EqualValues(t, 0, v.Len())
-	assert.EqualValues(t, []KeyValue{}, v.KeyValueList())
+	assert.EqualValues(t, nilKvl, v.KeyValueList())
 	assert.EqualValues(t, "{}", v.String())
+	assert.Panics(t, func() { v.KeyValueAt(0) }, "should panic on nil slice")
 
 	v = NewKeyValueList(make([]KeyValue, 0, 2))
 	assert.EqualValues(t, 0, v.Len())
 	assert.EqualValues(t, "{}", v.String())
+	assert.Panics(t, func() { v.KeyValueAt(1) })
 
 	v.Resize(2)
 	assert.EqualValues(t, 2, v.Len())
 	assert.EqualValues(t, []KeyValue{{}, {}}, v.KeyValueList())
 	assert.EqualValues(t, `{"":,"":}`, v.String())
+	assert.Panics(t, func() { v.KeyValueAt(-1) }, "should panic on negative index")
+	assert.Panics(t, func() { v.KeyValueAt(3) }, "should panic on out of bounds")
 
 	kv := v.KeyValueAt(0)
 	assert.NotNil(t, kv)
@@ -178,6 +186,43 @@ func TestVariantGC(t *testing.T) {
 
 	s2 = v.StringVal()
 	s2 = s2
+}
+
+func TestVariantPanics(t *testing.T) {
+	vals := []Variant{
+		NewEmpty(),
+		NewInt(123),
+		NewFloat64(1.23),
+	}
+	for _, v := range vals {
+		t.Run(v.String(), func(t *testing.T) {
+			// Check that get value of the type that is not what the function expects panics.
+			assert.Panics(t, func() { v.StringVal() })
+			assert.Panics(t, func() { v.Bytes() })
+			assert.Panics(t, func() { v.ValueList() })
+			assert.Panics(t, func() { v.ValueAt(0) })
+			assert.Panics(t, func() { v.Resize(1) })
+			assert.Panics(t, func() { v.KeyValueList() })
+			assert.Panics(t, func() { v.KeyValueAt(0) })
+		})
+	}
+}
+
+func TestResize(t *testing.T) {
+	v := NewBytes([]byte("abc"))
+	assert.EqualValues(t, 3, v.Len())
+	assert.EqualValues(t, []byte("abc"), v.Bytes())
+
+	v.Resize(2)
+	assert.EqualValues(t, 2, v.Len())
+	assert.EqualValues(t, []byte("ab"), v.Bytes())
+
+	v.Resize(3)
+	assert.EqualValues(t, 3, v.Len())
+	assert.EqualValues(t, []byte("abc"), v.Bytes())
+
+	assert.Panics(t, func() { v.Resize(-1) })
+	assert.Panics(t, func() { v.Resize(4) })
 }
 
 func createVariantInt() Variant {
