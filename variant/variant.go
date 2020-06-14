@@ -23,9 +23,9 @@
 // - Function will return an undefined value.
 // - Function will panic.
 //
-// Typically panics are used to mimic the behavior of builtin Go types. For example
-// accessing an element of a list using an index that is out of bounds will result in a
-// panic similarly to how it will panic for Go slices.
+// Variant uses panics to mimic the behavior of builtin Go types. For example
+// accessing an element of a VTypeValueList using an index that is out of bounds will
+// result in a panic similarly to how it will panic for Go slices.
 package variant
 
 import (
@@ -166,7 +166,7 @@ func (v *Variant) ValueAt(i int) Variant {
 		panic("index of empty VTypeValueList")
 	}
 	if i < 0 || i >= v.Len() {
-		panic("out of index")
+		panic("index out of bounds")
 	}
 	return *(*Variant)(unsafe.Pointer(uintptr(v.ptr) + uintptr(i)*unsafe.Sizeof(Variant{})))
 }
@@ -230,7 +230,7 @@ func (v *Variant) KeyValueAt(index int) *KeyValue {
 		panic("index of empty VTypeKeyValueList")
 	}
 	if index < 0 || index >= v.Len() {
-		panic("out of index")
+		panic("index out of bounds")
 	}
 	return (*KeyValue)(unsafe.Pointer(uintptr(v.ptr) + uintptr(index)*unsafe.Sizeof(KeyValue{})))
 }
@@ -261,5 +261,5 @@ func (v Variant) String() string {
 		}
 		return "{" + strings.Join(strs, ",") + "}"
 	}
-	panic("Invalid Variant type")
+	panic("invalid Variant type")
 }
