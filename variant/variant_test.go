@@ -444,6 +444,28 @@ func BenchmarkVariantValueListLen(b *testing.B) {
 	}
 }
 
+func BenchmarkStringFromBytes(b *testing.B) {
+	bytes := []byte{'a', 'b', 'c'}
+	for i := 0; i < b.N; i++ {
+		v := NewString(string(bytes))
+		str := v.StringVal()
+		if str != "abc" {
+			panic("invalid string")
+		}
+	}
+}
+
+func BenchmarkStringOptimizedFromBytes(b *testing.B) {
+	bytes := []byte{'a', 'b', 'c'}
+	for i := 0; i < b.N; i++ {
+		v := NewStringFromBytes(bytes)
+		str := v.StringVal()
+		if str != "abc" {
+			panic("invalid string")
+		}
+	}
+}
+
 func createStringSlice(n int) []string {
 	v := make([]string, n)
 	for i := 0; i < n; i++ {

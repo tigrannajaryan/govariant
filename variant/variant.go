@@ -104,6 +104,28 @@ func NewString(v string) Variant {
 	}
 }
 
+// NewStringFromBytes creates a Variant of VTypeString type from a slice of bytes
+// that represent the string.
+// WARNING: the string stored inside this Variant will be aliased in the memory and will
+// share its storage with the byte slice provided. This means any changes to the bytes
+// in the slice will also modify the string in this Variant.
+// This function should be only used when the source of the string is a byte slice and
+// it is guaranteed that the bytes in the slice will not be modified or when the
+// immutability of the string stored inside this Variant is not required. In such cases
+// NewStringFromBytes(v) provides significant performance advantage over
+// NewString(string(v)) call which will create a copy of byte slice 'v'.
+func NewStringFromBytes(v []byte) (r Variant) {
+	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
+	if hdr.Len > MaxSliceLen {
+		panic("maximum len exceeded")
+	}
+
+	return Variant{
+		ptr:        unsafe.Pointer(hdr.Data),
+		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeString),
+	}
+}
+
 // IntVal returns the stored int value.
 // The returned value is undefined if the Variant type is not equal to VTypeInt.
 func (v *Variant) IntVal() int {
