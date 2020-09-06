@@ -1,5 +1,8 @@
 # Variant data type for Go.
 
+**WARNING: this is an experimental package and is not intended for
+production use.**
+
 Variant (also known as [tagged union](https://en.wikipedia.org/wiki/Tagged_union)) allows to store values of one of the following types:
 
 - int,
