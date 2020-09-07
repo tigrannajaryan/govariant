@@ -40,12 +40,9 @@ this and several alternate variant implementations (lower is better):
   interface-based implementation of a variant
   data type (implementations like this are common in Go).
   
-- [Struct by Value](internal/plainstruct/plainstruct.go) - a struct
-  that holds all possible value types plus
-  a tag to store the type of the value. Struct is passed by value.
-  
-- [Struct by Pointer](internal/ptrstruct/ptrstruct.go) - same as
-  above but Struct is passed by pointer.
+- [Struct](internal/plainstruct/plainstruct.go) - a struct
+  that has a field for each possible value type plus
+  a tag to store the type of the value.
 
 - [Variant](variant/variant.go) - this implementation.
 
