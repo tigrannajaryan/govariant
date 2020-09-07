@@ -13,15 +13,6 @@ import (
 	"github.com/tigrannajaryan/govariant/internal/testutil"
 )
 
-func ExampleCreateVariant() {
-	v := NewInt(123)
-	if v.Type() == VTypeInt {
-		fmt.Print(v.IntVal())
-	}
-
-	// Output: 123
-}
-
 func TestVariantFieldAliasing(t *testing.T) {
 	v := Variant{}
 

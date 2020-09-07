@@ -108,7 +108,7 @@ import (
 	"unsafe"
 )
 
-// Type of a value stored in Variant.
+// VType represents the type of a value stored in Variant.
 type VType int
 
 // Possible value types that can be stored in Variant.
@@ -158,7 +158,7 @@ func (v *Variant) Type() VType {
 	return VType(v.lenAndType & typeFieldMask)
 }
 
-// NewEmpty creates a Variant of VTypeEmpty type.
+// NewEmpty creates a Variant of VTypeEmpty type. Equivalent to Variant{}.
 func NewEmpty() Variant {
 	return Variant{}
 }
@@ -242,10 +242,8 @@ func (v *Variant) Bytes() (b []byte) {
 // Elements in the returned slice are allowed to be modified after this call returns.
 // Will panic if the Variant type is not VTypeValueList.
 //
-// It is recommended to use this function for iteration over the list, e.g.
-// 		for i, e := range v.ValueList() {
-//			// Do something with item e
-//		}
+// It is recommended to use this function instead of ValueAt()/Len() pair to
+// iterate over the entire list.
 func (v *Variant) ValueList() (s []Variant) {
 	if v.Type() != VTypeValueList {
 		panic("Variant is not a slice")
@@ -318,10 +316,8 @@ func (v *Variant) Resize(len int) {
 // Such modification will affect the KeyValue stored in this Variant since returned
 // slice is a reference type.
 //
-// It is recommended to use this function for iteration over the list, e.g.
-// 		for i, kv := range v.KeyValueList() {
-//			// Do something with item kv.Key and kv.Value
-//		}
+// It is recommended to use this function instead of KeyValueAt()/Len() pair to
+// iterate over the entire list.
 func (v *Variant) KeyValueList() (s []KeyValue) {
 	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a VTypeKeyValueList")
@@ -358,6 +354,10 @@ func (v *Variant) KeyValueAt(index int) *KeyValue {
 }
 
 // String returns a human readable string representation of the stored value.
+//
+// This function is for diagnostic purposes (e.g. to print the value in a log file).
+// The format of the returned string is not part of the contract and may change any
+// time without warning.
 func (v Variant) String() string {
 	switch v.Type() {
 	case VTypeEmpty:

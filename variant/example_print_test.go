@@ -57,7 +57,7 @@ func printVariant(v variant.Variant) {
 	fmt.Printf("%s\n", variantToString(v))
 }
 
-func ExamplePrintVariant() {
+func Example() {
 	v := variant.NewInt(123)
 	printVariant(v)
 
@@ -87,7 +87,8 @@ func ExamplePrintVariant() {
 	)
 	printVariant(v)
 
-	// Output: 123
+	// Output:
+	// 123
 	// 1.23
 	// "Hello, World!"
 	// 0xAFCD34

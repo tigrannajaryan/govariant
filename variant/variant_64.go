@@ -9,6 +9,11 @@ import (
 	"unsafe"
 )
 
+// Variant allows to store values of one of the VType data types.
+//
+// To create a Variant use one of New* functions in this package. Note that
+// zero-initialized value of Variant is a valid VTypeEmpty value.
+// To access the stored value call one of the *Val methods of Variant struct.
 type Variant struct {
 	// Pointer to the slice start for slice-based types.
 	ptr unsafe.Pointer

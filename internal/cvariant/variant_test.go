@@ -15,7 +15,7 @@ import (
 	"github.com/tigrannajaryan/govariant/internal/testutil"
 )
 
-func ExampleCreateVariant() {
+func ExampleVariant_NewInt() {
 	v := NewInt(123)
 	if v.Type() == VTypeInt {
 		fmt.Print(v.IntVal())

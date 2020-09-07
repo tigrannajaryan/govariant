@@ -1,7 +1,7 @@
 /*
 Package variant implements Variant data type.
 
-Variant (also known as [tagged union](https://en.wikipedia.org/wiki/Tagged_union))
+Variant (also known as tagged union: https://en.wikipedia.org/wiki/Tagged_union)
 allows to store values of one of the following types:
 
  - int,
@@ -21,8 +21,8 @@ Usage
 To use a Variant first create and store a value in it and then check the stored value
 type and read it. For example:
 
- v := NewInt(123)
- if v.Type() == VTypeInt {
+ v := variant.NewInt(123)
+ if v.Type() == variant.VTypeInt {
    x := v.IntVal() // x is now int value 123.
  }
 

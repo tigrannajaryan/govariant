@@ -132,7 +132,7 @@ func printVariant(v variant.Variant) {
 	fmt.Printf("%s\n", variantToString(v))
 }
 
-func ExamplePrintVariant() {
+func Example() {
 	v := variant.NewInt(123)
 	printVariant(v)
 
