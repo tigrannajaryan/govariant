@@ -39,7 +39,7 @@ const (
 const TypeFieldBitCount = 3
 
 // Bit mask for Type part of lenAndType field.
-const TypeFieldMask = (1 << TypeFieldBitCount) - 1
+const typeFieldMask = (1 << TypeFieldBitCount) - 1
 
 // Maximum length of a slice-type that can be stored in Variant. The length of Go slices
 // can be at most maxint, however Variant is not able to store lengths of maxint. Len field
@@ -55,7 +55,7 @@ type KeyValue struct {
 
 // Type returns the type of the currently stored value.
 func (v *Variant) Type() VType {
-	return VType(v.lenAndType & TypeFieldMask)
+	return VType(v.lenAndType & typeFieldMask)
 }
 
 // NewEmpty creates a Variant of VTypeEmpty type.
@@ -195,7 +195,7 @@ func (v *Variant) Resize(len int) {
 	if len > MaxSliceLen {
 		panic("maximum len exceeded")
 	}
-	v.lenAndType = (v.lenAndType & TypeFieldMask) | (len << TypeFieldBitCount)
+	v.lenAndType = (v.lenAndType & typeFieldMask) | (len << TypeFieldBitCount)
 }
 
 // KeyValueList return the slice of stored KeyValue.
