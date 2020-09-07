@@ -27,9 +27,9 @@ type and read it. For example:
  }
 
 Variant uses an efficient data structure that is small and fast to operate on.
-On 64 bit systems the size of Variant is 24 bytes for scalar types (such as int or
-float64) plus any necessary additional data required by variable-sized types (String,
-List, etc).
+On 64 bit systems the size of Variant is 24 bytes for primitive types such as int or
+float64. For variable-sized types (String, List, etc) Variant stores a pointer to the
+data and length counter (similarly to how Go's built-in string and slice types do).
 
 To maximize the performance Variant functions do not return errors. All functions define
 clear contracts that describe in which case the calls are valid. In such cases it is
