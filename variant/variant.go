@@ -1,5 +1,105 @@
 package variant
 
+/*
+
+Variant is implemented as a struct with 3 fields: `ptr`, `lenAndType`, `capOrVal`.
+
+`lenAndType` is an int field that is split into 2 parts: `Len` and `Type`. `Type` is
+in the least significant 3 bits and contains the numeric value of the Variant type
+`Len` use the rest of the bits (61 bits on 64 bit platforms and 29 bits on 32 bit
+platforms) and contains the numeric value of the length of the slice that `ptr` points to.
+
+`capOrVal` either contains the capacity of the slice that `ptr` points to or the value
+for non-slice types. `capOrVal` is always 64 bits regardless of the GOARCH.
+
+What exactly is stored in the struct fields depends on the type of the Variant. The
+diagrams below show the content of the fields for each Variant type.
+
+VTypeEmpty:
+
+            +------------------------------+
+ ptr        | nil                          |
+            +------------------------------+
+ lenAndType | 0                            |
+            +------------------------------+
+ capOrVal   | 0                            |
+            +------------------------------+
+
+VTypeInt:
+
+            +------------------------------+
+ ptr        | nil                          |
+            +-----------------------+------+
+ lenAndType | Len=0                 |Type=1|
+            +-----------------------+------+
+ capOrVal   | int value                    |
+            +------------------------------+
+
+VTypeFloat64:
+
+            +------------------------------+
+ ptr        | nil                          |
+            +-----------------------+------+
+ lenAndType | Len=0                 |Type=2|
+            +-----------------------+------+
+ capOrVal   | float64 bits stored as int64 |
+            +------------------------------+
+
+VTypeString:
+                                              variable number
+                                              of string bytes
+            +------------------------------+       +---+
+ ptr        | Pointer to string bytes      |------>|   | first byte
+            +-----------------------+------+       +---+
+ lenAndType | Len of string in bytes|Type=3|       |   |
+            +-----------------------+------+       +---+
+ capOrVal   | 0                            |        ...
+            +------------------------------+       +---+
+                                                   |   | last byte
+                                                   +---+
+
+
+VTypeBytes:
+                                              variable number
+                                                 of bytes
+            +------------------------------+       +---+
+ ptr        | Pointer to byte slice        |------>|   | first byte
+            +-----------------------+------+       +---+
+ lenAndType | Len of slice          |Type=4|       |   |
+            +-----------------------+------+       +---+
+ capOrVal   | Capacity of      slice       |        ...
+            +------------------------------+       +---+
+                                                   |   | last byte
+                                                   +---+
+
+VTypeValueList:
+                                                    variable number of
+                                                     Variant elements
+            +------------------------------+       +------------------+
+ ptr        | Pointer to Variant slice     |------>|                  | first element
+            +-----------------------+------+       +------------------+
+ lenAndType | Len of slice          |Type=5|       |                  |
+            +-----------------------+------+       +------------------+
+ capOrVal   | Capacity of slice            |               ...
+            +------------------------------+       +------------------+
+                                                   |                  | last element
+                                                   +------------------+
+
+VTypeKeyValueList:
+                                                    variable number of
+                                                     KeyValue elements
+            +------------------------------+       +---+--------------+
+ ptr        | Pointer to KeyValue slice    |------>|Key| Value        | first element
+            +-----------------------+------+       +---+--------------+
+ lenAndType | Len of slice          |Type=6|       |Key| Value        |
+            +-----------------------+------+       +---+--------------+
+ capOrVal   | Capacity of slice            |               ...
+            +------------------------------+       +---+--------------+
+                                                   |Key| Value        | last element
+                                                   +---+--------------+
+
+*/
+
 import (
 	"fmt"
 	"reflect"
