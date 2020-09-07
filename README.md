@@ -1,3 +1,12 @@
+<p align="center">
+  <a href="https://goreportcard.com/report/github.com/tigrannajaryan/govariant">
+    <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/tigrannajaryan/govariant?style=for-the-badge">
+  </a>
+  <a href="https://circleci.com/gh/tigrannajaryan/govariant">
+    <img alt="Build Status" src="https://img.shields.io/circleci/build/github/tigrannajaryan/govariant?style=for-the-badge">
+  </a>
+</p>
+
 # Variant data type for Go.
 
 **WARNING: this is an experimental package and is not intended for
