@@ -1,31 +1,3 @@
-// Package variant implements a Variant type that can store a value of one of the
-// predefined types (see VType for the list of supported types).
-//
-// To use a Variant first create and store a value in it and then check the stored value
-// type and read it. For example:
-//
-// v := NewInt(123)
-// if v.Type() == VTypeInt {
-//   x := v.IntVal() // x is now int value 123.
-// }
-//
-// Variant uses an efficient data structure that is small and fast to operate on.
-// On 64 bit systems the size of Variant is 24 bytes for scalar types (such as int or
-// float64) plus any necessary additional data required by variable-sized types (String,
-// List, etc).
-//
-// To maximize the performance Variant functions do not return errors. All functions define
-// clear contracts that describe in which case the calls are valid. In such cases it is
-// guaranteed that no errors occur. If the caller violates the contract and it results
-// in erroneous situation one of the 2 things will happen (and such behavior is
-// documented for each function):
-//
-// - Function will return an undefined value.
-// - Function will panic.
-//
-// Variant uses panics to mimic the behavior of builtin Go types. For example
-// accessing an element of a VTypeValueList using an index that is out of bounds will
-// result in a panic similarly to how it will panic for Go slices.
 package variant
 
 import (
@@ -106,14 +78,16 @@ func NewString(v string) Variant {
 
 // NewStringFromBytes creates a Variant of VTypeString type from a slice of bytes
 // that represent the string.
+//
 // WARNING: the string stored inside this Variant will be aliased in the memory and will
 // share its storage with the byte slice provided. This means any changes to the bytes
 // in the slice will also modify the string in this Variant.
-// This function should be only used when the source of the string is a byte slice and
-// it is guaranteed that the bytes in the slice will not be modified or when the
-// immutability of the string stored inside this Variant is not required. In such cases
-// NewStringFromBytes(v) provides significant performance advantage over
-// NewString(string(v)) call which will create a copy of byte slice 'v'.
+//
+// This function should be only used when it is guaranteed that the bytes
+// in the slice will not be modified or when the immutability of the string
+// stored inside this Variant is not required. In such cases NewStringFromBytes(v)
+// provides significant performance advantage over NewString(string(v)) call,
+// which will create a copy of byte slice 'v'.
 func NewStringFromBytes(v []byte) (r Variant) {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 	if hdr.Len > MaxSliceLen {
@@ -127,13 +101,13 @@ func NewStringFromBytes(v []byte) (r Variant) {
 }
 
 // IntVal returns the stored int value.
-// The returned value is undefined if the Variant type is not equal to VTypeInt.
+// The returned value is undefined if the Variant type is not VTypeInt.
 func (v *Variant) IntVal() int {
 	return int(v.capOrVal)
 }
 
 // Float64Val returns the stored float64 value.
-// The returned value is undefined if the Variant type is not equal to VTypeFloat64.
+// The returned value is undefined if the Variant type is not VTypeFloat64.
 func (v *Variant) Float64Val() float64 {
 	return *(*float64)(unsafe.Pointer(&v.capOrVal))
 }
@@ -177,9 +151,10 @@ func (v *Variant) ValueList() (s []Variant) {
 	return s
 }
 
-// ValueAt returns the value at specified index.
-// Will panic if the Variant type is not VTypeValueList.
-// Will panic if index is negative or exceeds current (length-1).
+// ValueAt returns the value at the specified index.
+//
+// Valid to call only if Variant type is VTypeValueList otherwise will panic.
+// Will panic if index is negative or is greater or equal the current length.
 func (v *Variant) ValueAt(i int) Variant {
 	if v.Type() != VTypeValueList {
 		panic("Variant is not a VTypeValueList")
@@ -239,11 +214,12 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 	return s
 }
 
-// KeyValueAt returns the KeyValue at specified index.
-// Valid to call only if Type==VTypeKeyValueList otherwise will panic.
+// KeyValueAt returns the KeyValue at the specified index.
+//
+// Valid to call only if Variant type is VTypeKeyValueList otherwise will panic.
 // The element is returned by pointer to allow the caller to modify the element
 // by assigning to it if needed.
-// Will panic if index is negative or exceeds current (length-1).
+// Will panic if index is negative or is greater or equal the current length.
 func (v *Variant) KeyValueAt(index int) *KeyValue {
 	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a VTypeKeyValueList")

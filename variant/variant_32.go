@@ -1,7 +1,8 @@
 // +build 386
 
-// This file contains Variant implementation specific to GOARCH=386
 package variant
+
+// This file contains Variant implementation specific to GOARCH=386
 
 import (
 	"reflect"
@@ -39,6 +40,10 @@ func NewFloat64(v float64) (r Variant) {
 
 // NewBytes creates a Variant of VTypeBytes type and initializes it with the specified
 // slice of bytes.
+//
+// This function does not copy the slice. the Variant will point to
+// the same slice that is pointed to by the parameter v. Any changes made to the bytes
+// in the slice v will be also reflected in the byte slice stored in this Variant.
 func NewBytes(v []byte) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 	if hdr.Len > MaxSliceLen {
@@ -54,6 +59,10 @@ func NewBytes(v []byte) Variant {
 
 // NewValueList creates a Variant of VTypeValueList type and initializes it with the
 // specified slice of Variants.
+//
+// This function does not copy the slice. The Variant will point to the same slice that
+// is pointed to by the parameter v. Any changes made to the elements in the slice v
+// will be also reflected in the list stored in this Variant.
 func NewValueList(v []Variant) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 	if hdr.Len > MaxSliceLen {
@@ -69,6 +78,10 @@ func NewValueList(v []Variant) Variant {
 
 // NewKeyValueList creates a Variant of VTypeKeyValueList type and initializes it with the
 // specified slice of KeyValues.
+//
+// This function does not copy the slice. The Variant will point to the same slice that
+// is pointed to by the parameter v. Any changes made to the elements in the slice v
+// will be also reflected in the list stored in this Variant.
 func NewKeyValueList(v []KeyValue) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
 
