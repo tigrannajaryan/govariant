@@ -54,3 +54,6 @@ operations for several variant implementations:
 To see what each specific benchmark does prepend the label in the
 x axis with "BenchmarkVariant" and find the corresponding function
 (e.g. `BenchmarkVariantIntGet`).
+
+(Benchmarks are for amd64 version, compiled using go 1.15, running
+on Ubuntu 18 system with Intel i7 7500U processor).
