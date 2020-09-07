@@ -50,15 +50,16 @@ this and several alternate variant implementations (lower is better):
 
 To see what each specific benchmark does prepend the label in the
 x axis with "BenchmarkVariant" and find the corresponding function
-(e.g. `BenchmarkVariantIntGet`).
+in the source code (e.g. `BenchmarkVariantIntGet`).
 
-(Benchmarks are for amd64 version, compiled using go 1.15, running
-on Ubuntu 18 system with Intel i7 7500U processor).
+The chart above shows benchmarking results for amd64 version,
+compiled using go 1.15, running on Ubuntu 18 system with
+Intel i7 7500U processor.
 
 ## Usage
 
-To use a Variant first create and store a value in it and then check the stored value
-type and read it. For example:
+To use a Variant first create and store a value in it, 
+check the stored value type and read the value. For example:
 
 ```go
 import "github.com/tigrannajaryan/govariant/variant"
