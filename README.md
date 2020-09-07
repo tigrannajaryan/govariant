@@ -32,3 +32,25 @@ of Variant with several other functionally equivalent implementations.
 ## Benchmarks
 
 To run the benchmarks do `make benchmark`.
+
+Below is a chart that shows CPU usage by certain benchmarked
+operations for several variant implementations:
+
+- [Interface](internal/interfacev/interfacev.go) - typical
+  interface-based implementation of a variant
+  data type (implementations like this are common in Go).
+  
+- [Struct by Value](internal/plainstruct/plainstruct.go) - a struct
+  that holds all possible value types plus
+  a tag to store the type of the value. Struct is passed by value.
+  
+- [Struct by Pointer](internal/ptrstruct/ptrstruct.go) - same as
+  above but Struct is passed by pointer.
+
+- [Variant](variant/variant.go) - this implementation.
+
+![CPU Usage](benchmark/cpu_usage.png)
+
+To see what each specific benchmark does prepend the label in the
+x axis with "BenchmarkVariant" and find the corresponding function
+(e.g. `BenchmarkVariantIntGet`).
