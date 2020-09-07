@@ -25,4 +25,4 @@ benchmark:
 benchmark-arch:
 	@echo ============================== Benchmarking GOARCH=$(GOARCH) =========================
 	go test -bench . -benchmem $(PKGS) $(BENCHARGS) | tee benchmark/benchmark.log
-	sed "s/BenchmarkVariant//" benchmark/benchmark.log | sed "s+ns/op++" | sed "s+\(pkg: github\.com/tigrannajaryan/govariant/\)\(.*\)+\1\2\t\t\2+" | sed "s+B/op++" > benchmark/benchmark$(GOARCH).log
+	sed -f benchmark/patch_results.sed benchmark/benchmark.log > benchmark/benchmark$(GOARCH).log
