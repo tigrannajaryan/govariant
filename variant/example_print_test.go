@@ -7,6 +7,7 @@ import (
 	"github.com/tigrannajaryan/govariant/variant"
 )
 
+// variantToString converts a Variant to a human readable string.
 func variantToString(v variant.Variant) string {
 	switch v.Type() {
 	case variant.VTypeEmpty:
@@ -27,11 +28,11 @@ func variantToString(v variant.Variant) string {
 	case variant.VTypeValueList:
 		sb := strings.Builder{}
 		sb.WriteString("[")
-		for i := 0; i < v.Len(); i++ {
+		for i, e := range v.ValueList() {
 			if i > 0 {
 				sb.WriteString(", ")
 			}
-			sb.WriteString(variantToString(v.ValueAt(i)))
+			sb.WriteString(variantToString(e))
 		}
 		sb.WriteString("]")
 		return sb.String()
@@ -39,11 +40,10 @@ func variantToString(v variant.Variant) string {
 	case variant.VTypeKeyValueList:
 		sb := strings.Builder{}
 		sb.WriteString("{")
-		for i := 0; i < v.Len(); i++ {
+		for i, kv := range v.KeyValueList() {
 			if i > 0 {
 				sb.WriteString(", ")
 			}
-			kv := v.KeyValueAt(i)
 			sb.WriteString(fmt.Sprintf("%q: ", kv.Key))
 			sb.WriteString(variantToString(kv.Value))
 		}

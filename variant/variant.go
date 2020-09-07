@@ -138,8 +138,14 @@ func (v *Variant) Bytes() (b []byte) {
 }
 
 // ValueList returns the slice of stored Variant values.
+//
 // Elements in the returned slice are allowed to be modified after this call returns.
 // Will panic if the Variant type is not VTypeValueList.
+//
+// It is recommended to use this function for iteration over the list, e.g.
+// 		for i, e := range v.ValueList() {
+//			// Do something with item e
+//		}
 func (v *Variant) ValueList() (s []Variant) {
 	if v.Type() != VTypeValueList {
 		panic("Variant is not a slice")
@@ -155,6 +161,11 @@ func (v *Variant) ValueList() (s []Variant) {
 //
 // Valid to call only if Variant type is VTypeValueList otherwise will panic.
 // Will panic if index is negative or is greater or equal the current length.
+//
+// ValueAt() and Len() can be used to iterate over the list using a for loop,
+// however instead it is recommended to call ValueList() and use for-range
+// loop over the returned value (the later approach is faster and safer). See
+// ValueList() for an example.
 func (v *Variant) ValueAt(i int) Variant {
 	if v.Type() != VTypeValueList {
 		panic("Variant is not a VTypeValueList")
@@ -169,6 +180,7 @@ func (v *Variant) ValueAt(i int) Variant {
 }
 
 // Len returns the length of contained slice-based type.
+//
 // Valid to call for VTypeString, VTypeBytes, VTypeValueList, VTypeKeyValueList types.
 // For other types the returned value is undefined.
 func (v *Variant) Len() int {
@@ -176,6 +188,7 @@ func (v *Variant) Len() int {
 }
 
 // Resize the length of contained slice-based type.
+//
 // Valid to call for VTypeString, VTypeBytes, VTypeValueList, VTypeKeyValueList types.
 // Will panic for other types.
 // Will panic if len is negative or exceeds the current capacity of the slice or if
@@ -199,10 +212,16 @@ func (v *Variant) Resize(len int) {
 }
 
 // KeyValueList return the slice of stored KeyValue.
+//
 // Valid to call only if Type==VTypeKeyValueList otherwise will panic.
 // Elements in the returned slice are allowed to be modified after this call returns.
 // Such modification will affect the KeyValue stored in this Variant since returned
 // slice is a reference type.
+//
+// It is recommended to use this function for iteration over the list, e.g.
+// 		for i, kv := range v.KeyValueList() {
+//			// Do something with item kv.Key and kv.Value
+//		}
 func (v *Variant) KeyValueList() (s []KeyValue) {
 	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a VTypeKeyValueList")
@@ -220,6 +239,11 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 // The element is returned by pointer to allow the caller to modify the element
 // by assigning to it if needed.
 // Will panic if index is negative or is greater or equal the current length.
+//
+// KeyValueAt() and Len() can be used to iterate over the list using a for loop,
+// however instead it is recommended to call KeyValueList() and use for-range
+// loop over the returned value (the later approach is faster and safer). See
+// KeyValueList() for an example.
 func (v *Variant) KeyValueAt(index int) *KeyValue {
 	if v.Type() != VTypeKeyValueList {
 		panic("Variant is not a VTypeKeyValueList")
