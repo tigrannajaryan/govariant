@@ -5,6 +5,9 @@
   <a href="https://circleci.com/gh/tigrannajaryan/govariant">
     <img alt="Build Status" src="https://img.shields.io/circleci/build/github/tigrannajaryan/govariant?style=for-the-badge">
   </a>
+  <a href="https://codecov.io/gh/tigrannajaryan/govariant/branch/master/">
+    <img alt="Codecov Status" src="https://img.shields.io/codecov/c/github/tigrannajaryan/govariant?style=for-the-badge">
+  </a>
 </p>
 
 # Variant data type for Go.
