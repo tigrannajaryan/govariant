@@ -6,6 +6,17 @@ jobs:
     steps:
       - checkout
       - run: make test
+  coverage:
+    docker:
+      - image: cimg/go:1.14
+    steps:
+      - checkout
+      - run:
+          name: Collect test coverage
+          command: make test-coverage
+      - run:
+          name: Upload coverage results
+          command: bash <(curl -s https://codecov.io/bash)
   benchmark:
     docker:
       - image: cimg/go:1.14
@@ -17,4 +28,5 @@ workflows:
   build_and_test:
     jobs:
       - build
+      - coverage
       - benchmark

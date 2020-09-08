@@ -77,3 +77,16 @@ func ExampleVariant_KeyValueList() {
 	// "intval"=10
 	// "a string"="abc"
 }
+
+func ExampleNewStringFromBytes() {
+	bytes := []byte{'a', 'b', 'c'}
+	v := variant.NewStringFromBytes(bytes)
+	fmt.Println(v.StringVal())
+
+	bytes[2] = 'd'
+	fmt.Println(v.StringVal())
+
+	// Output:
+	// abc
+	// abd
+}
