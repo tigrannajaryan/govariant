@@ -136,16 +136,16 @@ const (
 )
 
 // Number of bits to use for Type field. This should be wide enough to fit all VType values.
-const TypeFieldBitCount = 3
+const typeFieldBitCount = 3
 
 // Bit mask for Type part of lenAndType field.
-const typeFieldMask = (1 << TypeFieldBitCount) - 1
+const typeFieldMask = (1 << typeFieldBitCount) - 1
 
 // Maximum length of a slice-type that can be stored in Variant. The length of Go slices
 // can be at most maxint, however Variant is not able to store lengths of maxint. Len field
-// in Variant uses TypeFieldBitCount bits less than int, i.e. the maximum length of a slice
-// stored in Variant is maxint / (2^TypeFieldBitCount), which we calculate below.
-const MaxSliceLen = int((^uint(0))>>1) >> TypeFieldBitCount
+// in Variant uses typeFieldBitCount bits less than int, i.e. the maximum length of a slice
+// stored in Variant is maxint / (2^typeFieldBitCount), which we calculate below.
+const maxSliceLen = int((^uint(0))>>1) >> typeFieldBitCount
 
 // KeyValue is an element that is used for VTypeKeyValueList storage.
 type KeyValue struct {
@@ -166,13 +166,13 @@ func NewEmpty() Variant {
 // NewString creates a Variant of VTypeString type.
 func NewString(v string) Variant {
 	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
-	if hdr.Len > MaxSliceLen {
+	if hdr.Len > maxSliceLen {
 		panic("maximum len exceeded")
 	}
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeString),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeString),
 	}
 }
 
@@ -190,13 +190,13 @@ func NewString(v string) Variant {
 // which will create a copy of byte slice 'v'.
 func NewStringFromBytes(v []byte) (r Variant) {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
-	if hdr.Len > MaxSliceLen {
+	if hdr.Len > maxSliceLen {
 		panic("maximum len exceeded")
 	}
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeString),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeString),
 	}
 }
 
@@ -220,7 +220,7 @@ func (v *Variant) StringVal() (s string) {
 	}
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> TypeFieldBitCount
+	dest.Len = v.lenAndType >> typeFieldBitCount
 	return s
 }
 
@@ -232,7 +232,7 @@ func (v *Variant) Bytes() (b []byte) {
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> TypeFieldBitCount
+	dest.Len = v.lenAndType >> typeFieldBitCount
 	dest.Cap = int(v.capOrVal)
 	return b
 }
@@ -250,7 +250,7 @@ func (v *Variant) ValueList() (s []Variant) {
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> TypeFieldBitCount
+	dest.Len = v.lenAndType >> typeFieldBitCount
 	dest.Cap = int(v.capOrVal)
 	return s
 }
@@ -282,7 +282,7 @@ func (v *Variant) ValueAt(i int) Variant {
 // Valid to call for VTypeString, VTypeBytes, VTypeValueList, VTypeKeyValueList types.
 // For other types the returned value is undefined.
 func (v *Variant) Len() int {
-	return v.lenAndType >> TypeFieldBitCount
+	return v.lenAndType >> typeFieldBitCount
 }
 
 // Resize the length of contained slice-based type.
@@ -290,7 +290,7 @@ func (v *Variant) Len() int {
 // Valid to call for VTypeString, VTypeBytes, VTypeValueList, VTypeKeyValueList types.
 // Will panic for other types.
 // Will panic if len is negative or exceeds the current capacity of the slice or if
-// len exceeds MaxSliceLen.
+// len exceeds maxSliceLen.
 func (v *Variant) Resize(len int) {
 	switch v.Type() {
 	case VTypeEmpty, VTypeInt, VTypeFloat64:
@@ -303,10 +303,10 @@ func (v *Variant) Resize(len int) {
 	if len > int(v.capOrVal) {
 		panic("cannot resize beyond capacity")
 	}
-	if len > MaxSliceLen {
+	if len > maxSliceLen {
 		panic("maximum len exceeded")
 	}
-	v.lenAndType = (v.lenAndType & typeFieldMask) | (len << TypeFieldBitCount)
+	v.lenAndType = (v.lenAndType & typeFieldMask) | (len << typeFieldBitCount)
 }
 
 // KeyValueList return the slice of stored KeyValue.
@@ -324,7 +324,7 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
-	dest.Len = v.lenAndType >> TypeFieldBitCount
+	dest.Len = v.lenAndType >> typeFieldBitCount
 	dest.Cap = int(v.capOrVal)
 	return s
 }

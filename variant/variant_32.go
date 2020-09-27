@@ -14,7 +14,7 @@ type Variant struct {
 	ptr unsafe.Pointer
 
 	// Len and Type fields.
-	// Type uses `TypeFieldBitCount` least significant bits, Len uses the rest.
+	// Type uses `typeFieldBitCount` least significant bits, Len uses the rest.
 	// Len is used only for the slice-based types.
 	lenAndType int
 
@@ -46,13 +46,13 @@ func NewFloat64(v float64) (r Variant) {
 // in the slice v will be also reflected in the byte slice stored in this Variant.
 func NewBytes(v []byte) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
-	if hdr.Len > MaxSliceLen {
+	if hdr.Len > maxSliceLen {
 		panic("maximum len exceeded")
 	}
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeBytes),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeBytes),
 		capOrVal:   int64(hdr.Cap),
 	}
 }
@@ -65,13 +65,13 @@ func NewBytes(v []byte) Variant {
 // will be also reflected in the list stored in this Variant.
 func NewValueList(v []Variant) Variant {
 	hdr := (*reflect.SliceHeader)(unsafe.Pointer(&v))
-	if hdr.Len > MaxSliceLen {
+	if hdr.Len > maxSliceLen {
 		panic("maximum len exceeded")
 	}
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeValueList),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeValueList),
 		capOrVal:   int64(hdr.Cap),
 	}
 }
@@ -87,7 +87,7 @@ func NewKeyValueList(v []KeyValue) Variant {
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << TypeFieldBitCount) | int(VTypeKeyValueList),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeKeyValueList),
 		capOrVal:   int64(hdr.Cap),
 	}
 }
