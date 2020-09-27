@@ -1,12 +1,15 @@
 <p align="center">
-  <a href="https://goreportcard.com/report/github.com/tigrannajaryan/govariant">
-    <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/tigrannajaryan/govariant?style=for-the-badge">
+  <a href="https://pkg.go.dev/github.com/tigrannajaryan/govariant/variant">
+    <img alt="Go Docs" height="28" src="https://godoc.org/github.com/tigrannajaryan/govariant/variant?status.svg">
   </a>
   <a href="https://circleci.com/gh/tigrannajaryan/govariant">
     <img alt="Build Status" src="https://img.shields.io/circleci/build/github/tigrannajaryan/govariant?style=for-the-badge">
   </a>
   <a href="https://codecov.io/gh/tigrannajaryan/govariant/branch/master/">
     <img alt="Codecov Status" src="https://img.shields.io/codecov/c/github/tigrannajaryan/govariant?style=for-the-badge">
+  </a>
+  <a href="https://goreportcard.com/report/github.com/tigrannajaryan/govariant">
+    <img alt="Go Report Card" src="https://goreportcard.com/badge/github.com/tigrannajaryan/govariant?style=for-the-badge">
   </a>
 </p>
 
