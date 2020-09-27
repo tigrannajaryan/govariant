@@ -165,7 +165,8 @@ func Example() {
 	)
 	printVariant(v)
 
-	// Output: 123
+	// Output:
+	// 123
 	// 1.23
 	// "Hello, World!"
 	// 0xAFCD34

@@ -1,5 +1,5 @@
 /*
-Package cvariant implements a more compact Variant data type.
+Package cvariant implements experimental, more compact Variant data type.
 
 Compared to Variant type found in the "variant" package "cvariant"
 implementation trades a small amount of speed for 8 byte reduction of

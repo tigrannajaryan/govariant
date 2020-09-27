@@ -1,8 +1,7 @@
 /*
-Package variant implements Variant data type.
+Package variant implements Variant data type (also known as tagged union: https://en.wikipedia.org/wiki/Tagged_union).
 
-Variant (also known as tagged union: https://en.wikipedia.org/wiki/Tagged_union)
-allows to store values of one of the following types:
+Variant allows to store values of one of the following types:
 
  - int,
  - float64,
@@ -16,10 +15,13 @@ Variant implementation is optimized for performance: for minimal CPU and
 memory usage. The implementation currently targets amd64 or 386 GOARCH
 only (it can be extended to other architectures).
 
+Variant is significantly faster than a typical interface-based implementation. See
+benchmark results here: https://github.com/tigrannajaryan/govariant/#benchmarks
+
 Usage
 
-To use a Variant first create and store a value in it and then check the stored value
-type and read it. For example:
+To use a Variant first create and store a value in it. When the stored value
+is needed check the stored value type and read it. For example:
 
  v := variant.NewInt(123)
  if v.Type() == variant.VTypeInt {
