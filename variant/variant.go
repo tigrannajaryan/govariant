@@ -15,7 +15,7 @@ for non-slice types. `capOrVal` is always 64 bits regardless of the GOARCH.
 What exactly is stored in the struct fields depends on the type of the Variant. The
 diagrams below show the content of the fields for each Variant type.
 
-VTypeEmpty:
+TypeEmpty:
 
             +------------------------------+
  ptr        | nil                          |
@@ -25,7 +25,7 @@ VTypeEmpty:
  capOrVal   | 0                            |
             +------------------------------+
 
-VTypeInt:
+TypeInt:
 
             +------------------------------+
  ptr        | nil                          |
@@ -35,7 +35,7 @@ VTypeInt:
  capOrVal   | int value                    |
             +------------------------------+
 
-VTypeFloat64:
+TypeFloat64:
 
             +------------------------------+
  ptr        | nil                          |
@@ -45,7 +45,7 @@ VTypeFloat64:
  capOrVal   | float64 bits stored as int64 |
             +------------------------------+
 
-VTypeString:
+TypeString:
                                               variable number
                                               of string bytes
             +------------------------------+       +---+
@@ -59,7 +59,7 @@ VTypeString:
                                                    +---+
 
 
-VTypeBytes:
+TypeBytes:
                                               variable number
                                                  of bytes
             +------------------------------+       +---+
@@ -72,7 +72,7 @@ VTypeBytes:
                                                    |   | last byte
                                                    +---+
 
-VTypeValueList:
+TypeValueList:
                                                     variable number of
                                                      Variant elements
             +------------------------------+       +------------------+
@@ -85,7 +85,7 @@ VTypeValueList:
                                                    |                  | last element
                                                    +------------------+
 
-VTypeKeyValueList:
+TypeKeyValueList:
                                                     variable number of
                                                      KeyValue elements
             +------------------------------+       +---+--------------+
@@ -108,34 +108,34 @@ import (
 	"unsafe"
 )
 
-// VType represents the type of a value stored in Variant.
-type VType int
+// Type represents the type of a value stored in Variant.
+type Type int
 
 // Possible value types that can be stored in Variant.
 const (
 	// Empty or no value. The default state of zero-initialized Variant.
-	VTypeEmpty VType = iota
+	TypeEmpty Type = iota
 
 	// An int number.
-	VTypeInt
+	TypeInt
 
 	// A float64 number.
-	VTypeFloat64
+	TypeFloat64
 
 	// A string.
-	VTypeString
+	TypeString
 
 	// A []byte slice.
-	VTypeBytes
+	TypeBytes
 
 	// A list of Variant.
-	VTypeValueList
+	TypeValueList
 
 	// A list of KeyValue.
-	VTypeKeyValueList
+	TypeKeyValueList
 )
 
-// Number of bits to use for Type field. This should be wide enough to fit all VType values.
+// Number of bits to use for Type field. This should be wide enough to fit all Type values.
 const typeFieldBitCount = 3
 
 // Bit mask for Type part of lenAndType field.
@@ -147,23 +147,23 @@ const typeFieldMask = (1 << typeFieldBitCount) - 1
 // stored in Variant is maxint / (2^typeFieldBitCount), which we calculate below.
 const maxSliceLen = int((^uint(0))>>1) >> typeFieldBitCount
 
-// KeyValue is an element that is used for VTypeKeyValueList storage.
+// KeyValue is an element that is used for TypeKeyValueList storage.
 type KeyValue struct {
 	Key   string
 	Value Variant
 }
 
 // Type returns the type of the currently stored value.
-func (v *Variant) Type() VType {
-	return VType(v.lenAndType & typeFieldMask)
+func (v *Variant) Type() Type {
+	return Type(v.lenAndType & typeFieldMask)
 }
 
-// NewEmpty creates a Variant of VTypeEmpty type. Equivalent to Variant{}.
+// NewEmpty creates a Variant of TypeEmpty type. Equivalent to Variant{}.
 func NewEmpty() Variant {
 	return Variant{}
 }
 
-// NewString creates a Variant of VTypeString type.
+// NewString creates a Variant of TypeString type.
 func NewString(v string) Variant {
 	hdr := (*reflect.StringHeader)(unsafe.Pointer(&v))
 	if hdr.Len > maxSliceLen {
@@ -172,11 +172,11 @@ func NewString(v string) Variant {
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeString),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(TypeString),
 	}
 }
 
-// NewStringFromBytes creates a Variant of VTypeString type from a slice of bytes
+// NewStringFromBytes creates a Variant of TypeString type from a slice of bytes
 // that represent the string.
 //
 // WARNING: the string stored inside this Variant will be aliased in the memory and will
@@ -196,27 +196,27 @@ func NewStringFromBytes(v []byte) (r Variant) {
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeString),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(TypeString),
 	}
 }
 
 // IntVal returns the stored int value.
-// The returned value is undefined if the Variant type is not VTypeInt.
+// The returned value is undefined if the Variant type is not TypeInt.
 func (v *Variant) IntVal() int {
 	return int(v.capOrVal)
 }
 
 // Float64Val returns the stored float64 value.
-// The returned value is undefined if the Variant type is not VTypeFloat64.
+// The returned value is undefined if the Variant type is not TypeFloat64.
 func (v *Variant) Float64Val() float64 {
 	return *(*float64)(unsafe.Pointer(&v.capOrVal))
 }
 
 // StringVal returns the stored string value.
-// Will panic if the Variant type is not VTypeString.
+// Will panic if the Variant type is not TypeString.
 func (v *Variant) StringVal() (s string) {
-	if v.Type() != VTypeString {
-		panic("Variant is not a VTypeString")
+	if v.Type() != TypeString {
+		panic("Variant is not a TypeString")
 	}
 	dest := (*reflect.StringHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
@@ -225,10 +225,10 @@ func (v *Variant) StringVal() (s string) {
 }
 
 // Bytes returns the stored byte slice.
-// Will panic if the Variant type is not VTypeBytes.
+// Will panic if the Variant type is not TypeBytes.
 func (v *Variant) Bytes() (b []byte) {
-	if v.Type() != VTypeBytes {
-		panic("Variant is not a VTypeBytes")
+	if v.Type() != TypeBytes {
+		panic("Variant is not a TypeBytes")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&b))
 	dest.Data = uintptr(v.ptr)
@@ -240,12 +240,12 @@ func (v *Variant) Bytes() (b []byte) {
 // ValueList returns the slice of stored Variant values.
 //
 // Elements in the returned slice are allowed to be modified after this call returns.
-// Will panic if the Variant type is not VTypeValueList.
+// Will panic if the Variant type is not TypeValueList.
 //
 // It is recommended to use this function instead of ValueAt()/Len() pair to
 // iterate over the entire list.
 func (v *Variant) ValueList() (s []Variant) {
-	if v.Type() != VTypeValueList {
+	if v.Type() != TypeValueList {
 		panic("Variant is not a slice")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
@@ -257,7 +257,7 @@ func (v *Variant) ValueList() (s []Variant) {
 
 // ValueAt returns the value at the specified index.
 //
-// Valid to call only if Variant type is VTypeValueList otherwise will panic.
+// Valid to call only if Variant type is TypeValueList otherwise will panic.
 // Will panic if index is negative or is greater or equal the current length.
 //
 // ValueAt() and Len() can be used to iterate over the list using a for loop,
@@ -265,11 +265,11 @@ func (v *Variant) ValueList() (s []Variant) {
 // loop over the returned value (the later approach is faster and safer). See
 // ValueList() for an example.
 func (v *Variant) ValueAt(i int) Variant {
-	if v.Type() != VTypeValueList {
-		panic("Variant is not a VTypeValueList")
+	if v.Type() != TypeValueList {
+		panic("Variant is not a TypeValueList")
 	}
 	if v.ptr == nil {
-		panic("index of empty VTypeValueList")
+		panic("index of empty TypeValueList")
 	}
 	if i < 0 || i >= v.Len() {
 		panic("index out of bounds")
@@ -279,7 +279,7 @@ func (v *Variant) ValueAt(i int) Variant {
 
 // Len returns the length of contained slice-based type.
 //
-// Valid to call for VTypeString, VTypeBytes, VTypeValueList, VTypeKeyValueList types.
+// Valid to call for TypeString, TypeBytes, TypeValueList, TypeKeyValueList types.
 // For other types the returned value is undefined.
 func (v *Variant) Len() int {
 	return v.lenAndType >> typeFieldBitCount
@@ -287,13 +287,13 @@ func (v *Variant) Len() int {
 
 // Resize the length of contained slice-based type.
 //
-// Valid to call for VTypeString, VTypeBytes, VTypeValueList, VTypeKeyValueList types.
+// Valid to call for TypeString, TypeBytes, TypeValueList, TypeKeyValueList types.
 // Will panic for other types.
 // Will panic if len is negative or exceeds the current capacity of the slice or if
 // len exceeds maxSliceLen.
 func (v *Variant) Resize(len int) {
 	switch v.Type() {
-	case VTypeEmpty, VTypeInt, VTypeFloat64:
+	case TypeEmpty, TypeInt, TypeFloat64:
 		panic(fmt.Sprintf("Cannot resize Variant type %d", v.Type()))
 	}
 
@@ -311,7 +311,7 @@ func (v *Variant) Resize(len int) {
 
 // KeyValueList return the slice of stored KeyValue.
 //
-// Valid to call only if Type==VTypeKeyValueList otherwise will panic.
+// Valid to call only if Type==TypeKeyValueList otherwise will panic.
 // Elements in the returned slice are allowed to be modified after this call returns.
 // Such modification will affect the KeyValue stored in this Variant since returned
 // slice is a reference type.
@@ -319,8 +319,8 @@ func (v *Variant) Resize(len int) {
 // It is recommended to use this function instead of KeyValueAt()/Len() pair to
 // iterate over the entire list.
 func (v *Variant) KeyValueList() (s []KeyValue) {
-	if v.Type() != VTypeKeyValueList {
-		panic("Variant is not a VTypeKeyValueList")
+	if v.Type() != TypeKeyValueList {
+		panic("Variant is not a TypeKeyValueList")
 	}
 	dest := (*reflect.SliceHeader)(unsafe.Pointer(&s))
 	dest.Data = uintptr(v.ptr)
@@ -331,7 +331,7 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 
 // KeyValueAt returns the KeyValue at the specified index.
 //
-// Valid to call only if Variant type is VTypeKeyValueList otherwise will panic.
+// Valid to call only if Variant type is TypeKeyValueList otherwise will panic.
 // The element is returned by pointer to allow the caller to modify the element
 // by assigning to it if needed.
 // Will panic if index is negative or is greater or equal the current length.
@@ -341,11 +341,11 @@ func (v *Variant) KeyValueList() (s []KeyValue) {
 // loop over the returned value (the later approach is faster and safer). See
 // KeyValueList() for an example.
 func (v *Variant) KeyValueAt(index int) *KeyValue {
-	if v.Type() != VTypeKeyValueList {
-		panic("Variant is not a VTypeKeyValueList")
+	if v.Type() != TypeKeyValueList {
+		panic("Variant is not a TypeKeyValueList")
 	}
 	if v.ptr == nil {
-		panic("index of empty VTypeKeyValueList")
+		panic("index of empty TypeKeyValueList")
 	}
 	if index < 0 || index >= v.Len() {
 		panic("index out of bounds")
@@ -360,23 +360,23 @@ func (v *Variant) KeyValueAt(index int) *KeyValue {
 // time without warning.
 func (v Variant) String() string {
 	switch v.Type() {
-	case VTypeEmpty:
+	case TypeEmpty:
 		return ""
-	case VTypeInt:
+	case TypeInt:
 		return strconv.Itoa(v.IntVal())
-	case VTypeFloat64:
+	case TypeFloat64:
 		return strconv.FormatFloat(v.Float64Val(), 'g', -1, 64)
-	case VTypeString:
+	case TypeString:
 		return fmt.Sprintf("%q", v.StringVal())
-	case VTypeBytes:
+	case TypeBytes:
 		return fmt.Sprintf("0x%X", v.Bytes())
-	case VTypeValueList:
+	case TypeValueList:
 		var strs []string
 		for _, e := range v.ValueList() {
 			strs = append(strs, e.String())
 		}
 		return "[" + strings.Join(strs, ",") + "]"
-	case VTypeKeyValueList:
+	case TypeKeyValueList:
 		var strs []string
 		for _, e := range v.KeyValueList() {
 			strs = append(strs, fmt.Sprintf("%q:%s", e.Key, e.Value.String()))

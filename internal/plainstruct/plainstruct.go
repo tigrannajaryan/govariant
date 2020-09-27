@@ -3,31 +3,31 @@ package plainstruct
 import "github.com/tigrannajaryan/govariant/variant"
 
 type Variant struct {
-	typ   variant.VType
+	typ   variant.Type
 	bytes []byte
 	str   string
 	i     int
 	f     float64
 }
 
-func (v *Variant) Type() variant.VType {
+func (v *Variant) Type() variant.Type {
 	return v.typ
 }
 
 func IntVariant(v int) Variant {
-	return Variant{typ: variant.VTypeInt, i: v}
+	return Variant{typ: variant.TypeInt, i: v}
 }
 
 func StringVariant(v string) Variant {
-	return Variant{typ: variant.VTypeString, str: v}
+	return Variant{typ: variant.TypeString, str: v}
 }
 
 func BytesVariant(v []byte) Variant {
-	return Variant{typ: variant.VTypeBytes, bytes: v}
+	return Variant{typ: variant.TypeBytes, bytes: v}
 }
 
 func Float64Variant(v float64) Variant {
-	return Variant{typ: variant.VTypeFloat64, f: v}
+	return Variant{typ: variant.TypeFloat64, f: v}
 }
 
 func (v *Variant) Int() int {
