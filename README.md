@@ -71,7 +71,7 @@ check the stored value type and read the value. For example:
 import "github.com/tigrannajaryan/govariant/variant"
 
 v := variant.NewInt(123)
-if v.Type() == VTypeInt {
+if v.Type() == TypeInt {
 	x := v.IntVal() // x is now int value 123.
 }
 
@@ -91,22 +91,22 @@ import (
 // variantToString converts a Variant to a human readable string.
 func variantToString(v variant.Variant) string {
 	switch v.Type() {
-	case variant.VTypeEmpty:
+	case variant.TypeEmpty:
 		return ""
 
-	case variant.VTypeInt:
+	case variant.TypeInt:
 		return fmt.Sprintf("%v", v.IntVal())
 
-	case variant.VTypeFloat64:
+	case variant.TypeFloat64:
 		return fmt.Sprintf("%v", v.Float64Val())
 
-	case variant.VTypeString:
+	case variant.TypeString:
 		return fmt.Sprintf("%q", v.StringVal())
 
-	case variant.VTypeBytes:
+	case variant.TypeBytes:
 		return fmt.Sprintf("0x%X", v.Bytes())
 
-	case variant.VTypeValueList:
+	case variant.TypeValueList:
 		sb := strings.Builder{}
 		sb.WriteString("[")
 		for i, e := range v.ValueList() {
@@ -118,7 +118,7 @@ func variantToString(v variant.Variant) string {
 		sb.WriteString("]")
 		return sb.String()
 
-	case variant.VTypeKeyValueList:
+	case variant.TypeKeyValueList:
 		sb := strings.Builder{}
 		sb.WriteString("{")
 		for i, kv := range v.KeyValueList() {

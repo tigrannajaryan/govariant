@@ -16,7 +16,7 @@ type Variant struct {
 	bits uint
 }
 
-// NewInt creates a Variant of VTypeInt type.
+// NewInt creates a Variant of TypeInt type.
 func NewInt(v int) Variant {
 	return Variant{
 		ptr:  unsafe.Pointer(&intTypeMarker),
@@ -24,7 +24,7 @@ func NewInt(v int) Variant {
 	}
 }
 
-// NewFloat64 creates a Variant of VTypeFloat64 type.
+// NewFloat64 creates a Variant of TypeFloat64 type.
 func NewFloat64(v float64) Variant {
 	return Variant{
 		ptr:  unsafe.Pointer(&floatTypeMarker),
@@ -32,7 +32,7 @@ func NewFloat64(v float64) Variant {
 	}
 }
 
-// NewBytes creates a Variant of VTypeBytes type and initializes it with the specified
+// NewBytes creates a Variant of TypeBytes type and initializes it with the specified
 // slice of bytes.
 //
 // This function does not copy the slice. The Variant will point to
@@ -46,11 +46,11 @@ func NewBytes(v []byte) Variant {
 
 	return Variant{
 		ptr:  unsafe.Pointer(hdr.Data),
-		bits: uint(hdr.Len<<lenFieldShiftCount) | uint(hdr.Cap<<capFieldShiftCount) | uint(VTypeBytes),
+		bits: uint(hdr.Len<<lenFieldShiftCount) | uint(hdr.Cap<<capFieldShiftCount) | uint(TypeBytes),
 	}
 }
 
-// NewValueList creates a Variant of VTypeValueList type and initializes it with the
+// NewValueList creates a Variant of TypeValueList type and initializes it with the
 // specified slice of Variants.
 //
 // This function does not copy the slice. The Variant will point to the same slice that
@@ -64,11 +64,11 @@ func NewValueList(v []Variant) Variant {
 
 	return Variant{
 		ptr:  unsafe.Pointer(hdr.Data),
-		bits: uint(hdr.Len<<lenFieldShiftCount) | uint(hdr.Cap<<capFieldShiftCount) | uint(VTypeValueList),
+		bits: uint(hdr.Len<<lenFieldShiftCount) | uint(hdr.Cap<<capFieldShiftCount) | uint(TypeValueList),
 	}
 }
 
-// NewKeyValueList creates a Variant of VTypeKeyValueList type and initializes it with the
+// NewKeyValueList creates a Variant of TypeKeyValueList type and initializes it with the
 // specified slice of KeyValues.
 //
 // This function does not copy the slice. The Variant will point to the same slice that
@@ -79,6 +79,6 @@ func NewKeyValueList(v []KeyValue) Variant {
 
 	return Variant{
 		ptr:  unsafe.Pointer(hdr.Data),
-		bits: uint(hdr.Len<<lenFieldShiftCount) | uint(hdr.Cap<<capFieldShiftCount) | uint(VTypeKeyValueList),
+		bits: uint(hdr.Len<<lenFieldShiftCount) | uint(hdr.Cap<<capFieldShiftCount) | uint(TypeKeyValueList),
 	}
 }
