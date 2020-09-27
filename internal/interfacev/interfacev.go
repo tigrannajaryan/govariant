@@ -1,3 +1,4 @@
+// Package interfacev is internal and is used for benchmarking only.
 package interfacev
 
 type IVariant interface {

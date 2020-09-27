@@ -1,3 +1,4 @@
+// Package plainstruct is internal and is used for benchmarking only.
 package plainstruct
 
 import "github.com/tigrannajaryan/govariant/variant"
