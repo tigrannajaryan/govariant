@@ -8,7 +8,7 @@ import (
 
 func ExampleNewInt() {
 	v := variant.NewInt(123)
-	if v.Type() == variant.VTypeInt {
+	if v.Type() == variant.TypeInt {
 		fmt.Print(v.IntVal())
 	}
 

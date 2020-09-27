@@ -24,7 +24,7 @@ To use a Variant first create and store a value in it. When the stored value
 is needed check the stored value type and read it. For example:
 
  v := variant.NewInt(123)
- if v.Type() == variant.VTypeInt {
+ if v.Type() == variant.TypeInt {
    x := v.IntVal() // x is now int value 123.
  }
 
@@ -40,7 +40,7 @@ in erroneous situation the functions will either return an undefined value or wi
 The documentation for each function will describe which of those two things will happen.
 
 If a list is stored in the Variant it uses panics to mimic the behavior of builtin Go
-slice type. For example accessing an element of a VTypeValueList using an index that is
+slice type. For example accessing an element of a TypeValueList using an index that is
 out of bounds will result in a panic.
 */
 package variant

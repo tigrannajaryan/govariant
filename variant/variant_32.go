@@ -23,22 +23,22 @@ type Variant struct {
 	capOrVal int64
 }
 
-// NewInt creates a Variant of VTypeInt type.
+// NewInt creates a Variant of TypeInt type.
 func NewInt(v int) Variant {
 	return Variant{
-		lenAndType: int(VTypeInt),
+		lenAndType: int(TypeInt),
 		capOrVal:   int64(v),
 	}
 }
 
-// NewFloat64 creates a Variant of VTypeFloat64 type.
+// NewFloat64 creates a Variant of TypeFloat64 type.
 func NewFloat64(v float64) (r Variant) {
-	r.lenAndType = int(VTypeFloat64)
+	r.lenAndType = int(TypeFloat64)
 	*(*float64)(unsafe.Pointer(&r.capOrVal)) = v
 	return r
 }
 
-// NewBytes creates a Variant of VTypeBytes type and initializes it with the specified
+// NewBytes creates a Variant of TypeBytes type and initializes it with the specified
 // slice of bytes.
 //
 // This function does not copy the slice. the Variant will point to
@@ -52,12 +52,12 @@ func NewBytes(v []byte) Variant {
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeBytes),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(TypeBytes),
 		capOrVal:   int64(hdr.Cap),
 	}
 }
 
-// NewValueList creates a Variant of VTypeValueList type and initializes it with the
+// NewValueList creates a Variant of TypeValueList type and initializes it with the
 // specified slice of Variants.
 //
 // This function does not copy the slice. The Variant will point to the same slice that
@@ -71,12 +71,12 @@ func NewValueList(v []Variant) Variant {
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeValueList),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(TypeValueList),
 		capOrVal:   int64(hdr.Cap),
 	}
 }
 
-// NewKeyValueList creates a Variant of VTypeKeyValueList type and initializes it with the
+// NewKeyValueList creates a Variant of TypeKeyValueList type and initializes it with the
 // specified slice of KeyValues.
 //
 // This function does not copy the slice. The Variant will point to the same slice that
@@ -87,7 +87,7 @@ func NewKeyValueList(v []KeyValue) Variant {
 
 	return Variant{
 		ptr:        unsafe.Pointer(hdr.Data),
-		lenAndType: (hdr.Len << typeFieldBitCount) | int(VTypeKeyValueList),
+		lenAndType: (hdr.Len << typeFieldBitCount) | int(TypeKeyValueList),
 		capOrVal:   int64(hdr.Cap),
 	}
 }
