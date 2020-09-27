@@ -1,3 +1,4 @@
+// Package ptrstruct is internal and is used for benchmarking only.
 package ptrstruct
 
 import "github.com/tigrannajaryan/govariant/variant"

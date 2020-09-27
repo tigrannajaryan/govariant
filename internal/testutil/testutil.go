@@ -1,3 +1,4 @@
+// Package testutil is internal and is used for benchmarking only.
 package testutil
 
 const VariantListSize = 10
